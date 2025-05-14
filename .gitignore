@@ -3,3 +3,8 @@ Algolab
 CMakeFiles
 CMakeCache.txt
 cmake_install.cmake
+CPackConfig.cmake
+CPackSourceConfig.cmake
+_deps/
+compile_commands.json
+.cache
