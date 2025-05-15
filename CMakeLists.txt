@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(Algolab)
+project(Minesweeper)
 
 include(FetchContent)
 
@@ -17,11 +17,11 @@ FetchContent_Declare(ftxui
 
 FetchContent_MakeAvailable(ftxui)
 
-add_executable(Algolab src/main.cpp)
+add_executable(Minesweeper src/main.cpp)
 
-target_include_directories(Algolab PRIVATE src)
+target_include_directories(Minesweeper PRIVATE src)
 
-target_link_libraries(Algolab
+target_link_libraries(Minesweeper
     PRIVATE ftxui::screen
     PRIVATE ftxui::dom
     PRIVATE ftxui::component

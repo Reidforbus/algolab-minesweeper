@@ -4,18 +4,23 @@
 
 int main(int argc, char** argv) {
     std::cout << "Hello World" << std::endl;
+
     ftxui::Element document =
         ftxui::hbox({
                 ftxui::text("left") | ftxui::border,
                 ftxui::text("center") | ftxui::border,
                 ftxui::text("right") | ftxui::border,
                 });
+
     auto screen = ftxui::Screen::Create(
             ftxui::Dimension::Full(),
             ftxui::Dimension::Fit(document)
             );
+
     ftxui::Render(screen, document);
     screen.Print();
+
+    std::cout << screen.ToString();
 
     return EXIT_SUCCESS;
 }
