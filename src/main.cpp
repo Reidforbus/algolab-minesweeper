@@ -1,26 +1,27 @@
+#include "game.hpp"
+#include "tui.hpp"
 #include <iostream>
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/screen/screen.hpp>
 
 int main(int argc, char** argv) {
-    std::cout << "Hello World" << std::endl;
 
-    ftxui::Element document =
-        ftxui::hbox({
-                ftxui::text("left") | ftxui::border,
-                ftxui::text("center") | ftxui::border,
-                ftxui::text("right") | ftxui::border,
-                });
+    Minegame game;
+    game.new_game(9,9,20);
 
-    auto screen = ftxui::Screen::Create(
-            ftxui::Dimension::Full(),
-            ftxui::Dimension::Fit(document)
-            );
+    GameTUI tui;
+    tui.new_game(9,9);
 
-    ftxui::Render(screen, document);
-    screen.Print();
+    tui.draw();
 
-    std::cout << screen.ToString();
+    while (true){
+        uint32_t row, col;
+        std::cin >> col >> row;
+        std::cout << col << " " << row << std::endl;
+
+        game.open(row, col);
+        game.print_state();
+    }
 
     return EXIT_SUCCESS;
 }
