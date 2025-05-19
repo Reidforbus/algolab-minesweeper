@@ -97,8 +97,8 @@ namespace algolab{
             void draw(){
                 build_doc();
                 auto screen = ftxui::Screen::Create(
-                        ftxui::Dimension::Full(),
-                        ftxui::Dimension::Full()
+                        ftxui::Dimension::Fit(document, true),
+                        ftxui::Dimension::Fit(document, true)
                         );
 
                 ftxui::Render(screen, document);
