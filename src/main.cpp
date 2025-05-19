@@ -6,10 +6,10 @@
 
 int main(int argc, char** argv) {
 
-    Minegame game;
+    algolab::Minegame game;
     game.new_game(9,9,20);
 
-    GameTUI tui;
+    algolab::GameTUI tui;
     tui.new_game(9,9);
 
     tui.draw();
@@ -17,10 +17,14 @@ int main(int argc, char** argv) {
     while (true){
         uint32_t row, col;
         std::cin >> col >> row;
-        std::cout << col << " " << row << std::endl;
+        if (std::cin.fail()) {
+            break;
+        }
 
         game.open(row, col);
-        game.print_state();
+        auto new_state = game.get_state();
+        tui.update_state(new_state);
+        tui.draw();
     }
 
     return EXIT_SUCCESS;
