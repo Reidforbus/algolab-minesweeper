@@ -7,14 +7,16 @@
 int main(int argc, char** argv) {
 
     algolab::Minegame game;
-    game.new_game(9,9,20);
+    game.new_game(16, 30, 20);
 
     algolab::GameTUI tui;
-    tui.new_game(9,9);
-
-    tui.draw();
+    tui.new_game(16, 30);
 
     while (true){
+        auto new_state = game.get_state();
+        tui.update_state(new_state);
+        tui.draw();
+
         uint32_t row, col;
         std::cin >> col >> row;
         if (std::cin.fail()) {
@@ -22,9 +24,6 @@ int main(int argc, char** argv) {
         }
 
         game.open(row, col);
-        auto new_state = game.get_state();
-        tui.update_state(new_state);
-        tui.draw();
     }
 
     return EXIT_SUCCESS;
