@@ -128,7 +128,7 @@ namespace algolab{
             if (slot->mine){
                 end_game();
             } else {
-                opened = spread_open(row, col);
+                spread_open(row, col);
             }
 
             return !slot->mine;
