@@ -11,6 +11,8 @@ namespace algolab{
             bool open = false;
             bool flagged = false;
             uint32_t adjacent_mines = 0;
+            uint32_t x;
+            uint32_t y;
         };
 
         private:
@@ -22,6 +24,8 @@ namespace algolab{
         std::vector<std::vector<Square>> board;
         bool game_over;
 
+        std::vector<std::pair<int, int>> neighbours = {{0,1},{1,1},{1,0},{0,-1},{-1,0},{-1,-1},{1,-1},{-1,1}};
+
         void end_game(){
             game_over = true;
             std::cout << "GAME OVER" << std::endl;
@@ -31,9 +35,31 @@ namespace algolab{
             return (row >= 0 & row < height & col >= 0 & col < width);
         }
 
+        void spread_open(uint32_t row, uint32_t col){
+            uint32_t n = 0;
+            std::vector<Square*> stack;
+            stack.push_back(&board[row][col]);
+
+            while (!stack.empty()){
+                Square* sq = stack.back();
+                stack.pop_back();
+                sq->open = true;
+                if (sq->adjacent_mines == 0){
+                    for (auto dir : neighbours) {
+                        auto j = sq->y+dir.first;
+                        auto i = sq->x+dir.second;
+                        if (in_bounds(j, i)){
+                            Square* nbr = &board[j][i];
+                            if (!nbr->open){
+                                stack.push_back(nbr);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         public:
-
-
 
         void new_game(uint32_t h, uint32_t w, uint32_t m){
             height = h;
@@ -62,6 +88,8 @@ namespace algolab{
 
                 for (uint32_t x = 0; x < width; x++) {
                     Square next;
+                    next.x = x;
+                    next.y = y;
                     next.mine = mines[(y*width) + x];
                     row.push_back(next);
                 }
@@ -72,14 +100,13 @@ namespace algolab{
                 for (uint32_t x = 0; x < width; x++) {
                     Square* slot = &board[y][x];
                     if (slot->mine) {
-                        if (in_bounds(y+1, x)){board[y+1][x].adjacent_mines++;}
-                        if (in_bounds(y+1, x+1)){board[y+1][x+1].adjacent_mines++;}
-                        if (in_bounds(y, x+1)){board[y][x+1].adjacent_mines++;}
-                        if (in_bounds(y-1, x)){board[y-1][x].adjacent_mines++;}
-                        if (in_bounds(y-1, x-1)){board[y-1][x-1].adjacent_mines++;}
-                        if (in_bounds(y, x-1)){board[y][x-1].adjacent_mines++;}
-                        if (in_bounds(y+1, x-1)){board[y+1][x-1].adjacent_mines++;}
-                        if (in_bounds(y-1, x+1)){board[y-1][x+1].adjacent_mines++;}
+                        for (auto dir : neighbours) {
+                            auto j = y+dir.first;
+                            auto i = x+dir.second;
+                            if (in_bounds(j, i)){
+                                board[j][i].adjacent_mines++;
+                            }
+                        }
                     }
                 }
             }
@@ -97,12 +124,11 @@ namespace algolab{
             if (slot->open){
                 return true;
             }
-            slot->open = true;
 
             if (slot->mine){
                 end_game();
             } else {
-                opened++;
+                opened = spread_open(row, col);
             }
 
             return !slot->mine;
