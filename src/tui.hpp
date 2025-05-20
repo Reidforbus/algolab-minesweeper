@@ -87,7 +87,7 @@ namespace algolab{
                         } else if (val == 9) {
                             sq = "💣";
                         } else if (val == 11) {
-                            sq = "🔺";
+                            sq = "🚩";
                         }
                         board[j][i] = square(sq, open);
                     }

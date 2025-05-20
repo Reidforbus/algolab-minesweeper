@@ -29,6 +29,11 @@ namespace algolab{
         void end_game(){
             game_over = true;
             std::cout << "GAME OVER" << std::endl;
+            for (auto j = 0; j < height; j++){
+                for (auto i = 0; i < width; i++){
+                    board[j][i].open = true;
+                }
+            }
         }
 
         bool in_bounds(uint32_t row, uint32_t col){
@@ -139,12 +144,12 @@ namespace algolab{
             for (auto row : board) {
                 for (Square sq : row) {
                     uint32_t x = 10;
-                    if (sq.flagged) {
-                        x = 11;
-                    } else if (sq.open & sq.mine) {
+                    if (sq.open & sq.mine) {
                         x = 9;
                     } else if (sq.open) {
                         x = sq.adjacent_mines;
+                    } else if (sq.flagged) {
+                        x = 11;
                     }
                     state.push_back(x);
                 }
@@ -153,6 +158,9 @@ namespace algolab{
         }
 
         void flag(uint32_t row, uint32_t col) {
+            if (!in_bounds(row, col)){
+                return;
+            }
             Square* slot = &board[row][col];
             if (slot->open){
                 return;
