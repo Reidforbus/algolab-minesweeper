@@ -11,19 +11,16 @@ namespace algolab{
 
         Coord(int r = 0, int c = 0):row(r), col(c){}
 
-        void operator +=(Coord a){
+        void operator +=(const Coord& a){
             row += a.row;
             col += a.col;
         }
 
-        bool operator <(const Coord a) const{
-            if (row < a.row){
-                return true;
-            }
-            return col < a.col;
+        bool operator <(const Coord& a) const{
+            return std::tie(row, col) < std::tie(a.row, a.col);
         }
 
-        std::vector<Coord> neighbours(Coord a){
+        std::vector<Coord> neighbours(const Coord& a){
             std::vector<Coord> result = {{0,1},{1,1},{1,0},{0,-1},{-1,0},{-1,-1},{1,-1},{-1,1}};
             for (Coord sq : result){
                 sq += a;
@@ -42,6 +39,9 @@ namespace algolab{
             std::vector<Coord> to_open;
             std::vector<Coord> to_flag;
 
+            uint64_t hash_coord(Coord sq){
+                return (sq.row * width) + sq.col;
+            }
 
             bool in_bounds(Coord sq){
                 return (sq.row >= 0 & sq.row < height & sq.col >= 0 & sq.col < width);
@@ -64,14 +64,14 @@ namespace algolab{
             void update_state(std::vector<uint32_t> state){
                 for (auto j = 0;j < height; j++){
                     for (auto i = 0;i < width; i++){
-                        Coord sq(j, i);
+                        Coord sq = {j, i};
                         if (mines.count(sq) | opened.count(sq)){
                             continue;
                         }
                         auto val = state[(j * width) + i];
                         if (val < 9){
                             changed.push_back(sq);
-                            opened.insert_or_assign(sq, val);
+                            opened[sq] = val;
                         }
                     }
                 }
