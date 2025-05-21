@@ -4,7 +4,6 @@
 #include <vector>
 
 namespace algolab{
-
     struct Coord {
         int row;
         int col;
@@ -28,5 +27,16 @@ namespace algolab{
             return result;
         }
 
+    };
+
+    enum Move_action {
+        OPEN,
+        FLAG
+    };
+
+    struct Move {
+        Coord coord;
+        Move_action action; 
+        bool guess;
     };
 }
