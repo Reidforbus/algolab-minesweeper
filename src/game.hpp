@@ -2,7 +2,9 @@
 #include <cstdlib>
 #include <iostream>
 #include <random>
+#include <set>
 #include <vector>
+#include "utilities.hpp"
 
 namespace algolab{
     class Minegame{
@@ -11,8 +13,7 @@ namespace algolab{
             bool open = false;
             bool flagged = false;
             uint32_t adjacent_mines = 0;
-            uint32_t x;
-            uint32_t y;
+            Coord coord;
         };
 
         private:
@@ -24,8 +25,6 @@ namespace algolab{
         std::vector<std::vector<Square>> board;
         bool game_over;
 
-        std::vector<std::pair<int, int>> neighbours = {{0,1},{1,1},{1,0},{0,-1},{-1,0},{-1,-1},{1,-1},{-1,1}};
-
         void end_game(){
             game_over = true;
             std::cout << "GAME OVER" << std::endl;
@@ -36,26 +35,26 @@ namespace algolab{
             }
         }
 
-        bool in_bounds(uint32_t row, uint32_t col){
-            return (row >= 0 & row < height & col >= 0 & col < width);
+        bool in_bounds(int row, int col){
+            return ((row >= 0) & (row < height) & (col >= 0) & (col < width));
         }
 
         void spread_open(uint32_t row, uint32_t col){
             uint32_t n = 0;
-            std::vector<Square*> stack;
-            stack.push_back(&board[row][col]);
+            std::vector<Coord> stack;
+            std::set<Coord> seen;
+            stack.push_back(Coord(row, col));
 
             while (!stack.empty()){
-                Square* sq = stack.back();
+                Coord sq = stack.back();
                 stack.pop_back();
-                sq->open = true;
-                if (sq->adjacent_mines == 0){
-                    for (auto dir : neighbours) {
-                        auto j = sq->y+dir.first;
-                        auto i = sq->x+dir.second;
-                        if (in_bounds(j, i)){
-                            Square* nbr = &board[j][i];
-                            if (!nbr->open){
+                seen.insert(sq);
+                Square* sq_ptr = &board[sq.row][sq.col];
+                sq_ptr->open = true;
+                if (sq_ptr->adjacent_mines == 0){
+                    for (auto nbr : sq.neighbours()) {
+                        if (in_bounds(nbr.row, nbr.col)){
+                            if (!seen.count(nbr)){
                                 stack.push_back(nbr);
                             }
                         }
@@ -88,28 +87,26 @@ namespace algolab{
                 }
             }
 
-            for (uint32_t y = 0; y < height; y++) {
+            for (int y = 0; y < height; y++) {
                 std::vector<Square> row;
 
-                for (uint32_t x = 0; x < width; x++) {
+                for (int x = 0; x < width; x++) {
                     Square next;
-                    next.x = x;
-                    next.y = y;
+                    next.coord = {y, x};
                     next.mine = mines[(y*width) + x];
                     row.push_back(next);
                 }
                 board.push_back(row);
             }
 
-            for (uint32_t y = 0; y < height; y++) {
-                for (uint32_t x = 0; x < width; x++) {
-                    Square* slot = &board[y][x];
-                    if (slot->mine) {
-                        for (auto dir : neighbours) {
-                            auto j = y+dir.first;
-                            auto i = x+dir.second;
-                            if (in_bounds(j, i)){
-                                board[j][i].adjacent_mines++;
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    Square* sq = &board[y][x];
+                    if (sq->mine) {
+                        for (auto nbr : sq->coord.neighbours()) {
+                            std::cout << nbr.row << " " << nbr.col << std::endl;
+                            if (in_bounds(nbr.row, nbr.col)){
+                                board[nbr.row][nbr.col].adjacent_mines++;
                             }
                         }
                     }
@@ -171,15 +168,12 @@ namespace algolab{
         void print_state() {
             for (auto i : board) {
                 for (Square j : i) {
-                    if (j.open & j.mine) {
+                    if (j.mine) {
                         std::cout << "@";
-                    } else if (j.open & (j.adjacent_mines == 0)) {
-                        std::cout << " ";
-                    } else if (j.open) {
-                        std::cout << j.adjacent_mines;
                     } else {
-                        std::cout << "#";
+                        std::cout << j.adjacent_mines;
                     }
+                    std::cout << " ";
                 }
                 std::cout << std::endl;
             }

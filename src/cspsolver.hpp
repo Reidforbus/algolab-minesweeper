@@ -1,35 +1,9 @@
 #include <cstdint>
 #include <map>
 #include <set>
-#include <vector>
+#include "utilities.hpp"
 
 namespace algolab{
-
-    struct Coord {
-        int row;
-        int col;
-
-        Coord(int r = 0, int c = 0):row(r), col(c){}
-
-        void operator +=(const Coord& a){
-            row += a.row;
-            col += a.col;
-        }
-
-        bool operator <(const Coord& a) const{
-            return std::tie(row, col) < std::tie(a.row, a.col);
-        }
-
-        std::vector<Coord> neighbours(const Coord& a){
-            std::vector<Coord> result = {{0,1},{1,1},{1,0},{0,-1},{-1,0},{-1,-1},{1,-1},{-1,1}};
-            for (Coord sq : result){
-                sq += a;
-            }
-            return result;
-        }
-
-    };
-
     class CSPAI{
         private:
             uint32_t height, width, mine_count;
@@ -39,22 +13,22 @@ namespace algolab{
             std::vector<Coord> to_open;
             std::vector<Coord> to_flag;
 
-            uint64_t hash_coord(Coord sq){
-                return (sq.row * width) + sq.col;
-            }
-
-            bool in_bounds(Coord sq){
+            bool in_bounds(const Coord& sq){
                 return (sq.row >= 0 & sq.row < height & sq.col >= 0 & sq.col < width);
             }
 
-            bool all_free_neighbors(Coord coord){
+            bool all_free_neighbors(const Coord& coord){
                 // TODO
                 return false;
             }
 
-            bool all_mined_neighbors(Coord coord){
+            bool all_mined_neighbors(const Coord& coord){
                 // TODO
                 return false;
+            }
+
+            void calculate_moves(){
+
             }
 
         public:
@@ -76,5 +50,8 @@ namespace algolab{
                     }
                 }
             }
+
+
+
     };
 } // namespace algolab
