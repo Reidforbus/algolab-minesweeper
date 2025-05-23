@@ -51,6 +51,23 @@ namespace algolab{
                 }
             }
 
+            Move get_next_move(){
+                while (true) {
+                if (!to_flag.empty()){
+                    Move next = {to_flag.back(), FLAG, false};
+                    to_flag.pop_back();
+                    return next;
+                }
+
+                if (!to_open.empty()){
+                    Move next = {to_open.back(), OPEN, false};
+                    to_open.pop_back();
+                    return next;
+                }
+
+                calculate_moves();
+                }
+            }
 
 
     };
