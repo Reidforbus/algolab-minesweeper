@@ -6,4 +6,4 @@ Tämä repo sisältää kesän 2025 Aineopintojen harjoitustyö: Algoritmit ja t
 
 - [Määrittelydokumentti](https://github.com/Reidforbus/algolab-minesweeper/blob/main/documentation/specification.md)
 
-- [Viimeisin viikkoraportti](https://github.com/Reidforbus/algolab-minesweeper/blob/main/documentation/viikkoraportti1.md)
+- [Viimeisin viikkoraportti](https://github.com/Reidforbus/algolab-minesweeper/blob/main/documentation/viikkoraportti2.md)
