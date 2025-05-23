@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/dom/node.hpp>
+#include <ftxui/screen/color.hpp>
 #include <ftxui/screen/screen.hpp>
 #include <string>
 #include <vector>
@@ -30,7 +31,7 @@ namespace algolab{
                     }
 
                     grid_vector.push_back(ftxui::hbox(row_vector));
-                    if (j != board_w - 1){
+                    if (j != board_h - 1){
                         grid_vector.push_back(ftxui::separator());
                     }
 
@@ -43,16 +44,47 @@ namespace algolab{
             }
 
             auto square(std::string s, bool open){
-                auto sq = ftxui::hbox(ftxui::text(s) | 
-                        ftxui::center |
-                        ftxui::flex_grow) |
-                    ftxui::size(ftxui::WIDTH, ftxui::EQUAL, 3) |
-                    ftxui::size(ftxui::HEIGHT, ftxui::EQUAL, 1);
+                ftxui::Color number_color;
+                ftxui::BorderStyle border;
+
+
                 if (!open) {
-                    sq |= ftxui::borderHeavy;
+                    border = ftxui::HEAVY;
                 } else {
-                    sq |= ftxui::borderEmpty;
+                    border = ftxui::EMPTY;
+
+                    switch (std::atoi(s.c_str())){
+                        case 1:
+                            number_color = ftxui::Color::Blue;
+                            break;
+                        case 2:
+                            number_color = ftxui::Color::Green;
+                            break;
+                        case 3:
+                            number_color = ftxui::Color::Red;
+                            break;
+                        case 4:
+                            number_color = ftxui::Color::Magenta;
+                            break;
+                        case 5:
+                            number_color = ftxui::Color::Yellow;
+                            break;
+                        case 6:
+                            number_color = ftxui::Color::Cyan;
+                            break;
+                        default:
+                            break;
+                    }
                 }
+                auto content = ftxui::text(s) | 
+                    ftxui::center |
+                    ftxui::flex_grow |
+                    ftxui::color(number_color);
+
+                auto sq = ftxui::hbox(content) |
+                    ftxui::size(ftxui::WIDTH, ftxui::EQUAL, 3) |
+                    ftxui::size(ftxui::HEIGHT, ftxui::EQUAL, 1) |
+                    ftxui::borderStyled(border);
                 return sq;
             }
 
