@@ -15,8 +15,16 @@ namespace algolab{
             col += a.col;
         }
 
+        bool operator==(const Coord& a) const{
+            return std::tie(row, col) == std::tie(a.row, a.col);
+        }
+
         bool operator <(const Coord& a) const{
             return std::tie(row, col) < std::tie(a.row, a.col);
+        }
+
+        bool operator >(const Coord& a) const{
+            return std::tie(row, col) > std::tie(a.row, a.col);
         }
 
         std::vector<Coord> neighbours(){

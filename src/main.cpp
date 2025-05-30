@@ -1,6 +1,6 @@
 #include "game.hpp"
 #include "tui.hpp"
-#include "cspsolver.hpp"
+#include "aicore.hpp"
 #include <cstdint>
 #include <iostream>
 #include <ftxui/dom/elements.hpp>
