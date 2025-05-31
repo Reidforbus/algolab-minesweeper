@@ -1,69 +1,68 @@
-#include "utilities.hpp"
+#include <set>
+#include <tuple>
+#include <unordered_map>
 #include <vector>
 
-
 namespace algolab {
-    class CSPTrie{
-        struct Node {
-            Coord variable;
-            std::vector<Node*> children;
-            int sum = -1;
+    template <typename var_type> class CSPGraph{
+        struct Variable;
 
-            bool operator<(const Node& a) const{
-                return variable < a.variable;
-            }
+        struct Constraint {
+            std::set<Variable&> variables;
+            int sum = -1;
+            int ones_solved = 0;
+            std::set<Variable&> unknown;
         };
+
+        struct Variable {
+            var_type name;
+            std::set<Constraint&> constraints;
+            int value = -1;
+        };
+
 
         private:
 
-        std::vector<Node*> root;
+        std::unordered_map<var_type, Variable> variables;
+        std::vector<Constraint> constraints;
 
-        bool is_trivial(std::vector<Coord>& variables, int sum){
-            if (sum == 0){
-                return true;
+        std::vector<Constraint&> update_queue;
+
+        std::vector<std::tuple<var_type, int>> solved;
+
+        void process_queue(){
+            while (!update_queue.empty()){
             }
-            return variables.size() == sum;
-        }
-
-        Node* find_var(Coord var){
-            if (root.empty()){
-                return nullptr;
-            }
-            Node* result = nullptr;
-
-            for (Node* node : root){
-                if (node->variable>var){
-                    break;
-                }
-                result = search(node, var);
-                if (result != nullptr){
-                    break;
-                }
-            }
-
-            return result;
-        }
-
-        Node* search(Node* node, Coord var){
-            if (node->variable == var){
-                return node;
-            }
-            Node* result = nullptr;
-            for (Node* child : node->children){
-                result = search(child, var);
-            }
-
-            return result;
         }
 
         public:
 
-        void add_constraint(std::vector<Coord> variables, int sum){
-            if (is_trivial(variables, sum)){
+        void add_constraint(std::vector<var_type> vars, int sum){
+            constraints.push_back(Constraint());
+            Constraint& new_cnstrnt = constraints.back();
+            new_cnstrnt.sum = sum;
 
-            } else {
-
+            for (var_type var_name : vars){
+                if (variables.count(var_name) == 0){
+                    variables.insert(var_name, Variable(var_name));
+                } 
+                Variable& var = variables[var_name];
+                var.constraints.insert(new_cnstrnt);
+                new_cnstrnt.variables.insert(var);
+                new_cnstrnt.unknown.insert(var);
             }
+            update_queue.insert(new_cnstrnt);
+
+            process_queue();
+        }
+
+        std::tuple<var_type, int> get_solved(){
+            if (solved.empty()){
+                return std::tie(var_type(), -1);
+            }
+            auto result = solved.back();
+            solved.pop_back();
+            return result;
         }
     };
 
