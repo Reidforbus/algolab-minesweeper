@@ -65,7 +65,15 @@ namespace algolab{
 
         public:
 
-        void new_game(uint32_t h, uint32_t w, uint32_t m){
+        bool game_finished(){
+            return game_over;
+        }
+
+        void cede(){
+            end_game();
+        }
+
+        void new_game(uint32_t h, uint32_t w, uint32_t m, uint32_t seed = 0){
             height = h;
             width = w;
             mine_count = m;
@@ -73,13 +81,12 @@ namespace algolab{
             board.clear();
             opened = 0;
 
-            std::random_device rd;
-            std::mt19937 randgen(rd());
+            std::mt19937 randomizer(seed);
             std::uniform_int_distribution<> distributor(0, (height * width) - 1);
 
             std::vector<bool> mines(height*width);
             for (int i = 0; i< mine_count;i++) {
-                uint32_t idx = distributor(randgen);
+                uint32_t idx = distributor(randomizer);
                 if (mines[idx]) {
                     i--;
                 } else {
@@ -104,7 +111,7 @@ namespace algolab{
                     Square* sq = &board[y][x];
                     if (sq->mine) {
                         for (auto nbr : sq->coord.neighbours()) {
-                            std::cout << nbr.row << " " << nbr.col << std::endl;
+                            //std::cout << nbr.row << " " << nbr.col << std::endl;
                             if (in_bounds(nbr.row, nbr.col)){
                                 board[nbr.row][nbr.col].adjacent_mines++;
                             }

@@ -39,7 +39,8 @@ namespace algolab{
 
     enum Move_action {
         OPEN,
-        FLAG
+        FLAG,
+        FAIL
     };
 
     struct Move {
