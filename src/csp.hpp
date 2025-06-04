@@ -1,6 +1,7 @@
 #pragma once
 
 #include <deque>
+#include <memory>
 #include <set>
 #include <tuple>
 #include <map>
@@ -15,39 +16,51 @@ namespace algolab {
             bool obsolete = false;
             std::set<Variable*> variables;
             int sum = -1;
+            int ones_solved = 0;
+            int zeroes_solved = 0;
+            std::set<Variable*> unknown;
         };
 
         struct Variable {
             var_type name;
             std::set<Constraint*> constraints;
             int value = -1;
-
-            bool operator<(const Variable& a) const{
-                return name < a.name;
-            }
         };
 
 
         private:
 
         std::map<var_type, Variable> variables;
-        std::vector<Constraint> constraints;
+        std::vector<std::unique_ptr<Constraint>> constraints;
 
         std::deque<Constraint*> update_queue;
 
         std::vector<std::tuple<var_type, int>> solved;
 
         void solve_variable(Variable& var, int value){
+            if (var.value == value) {
+                // Somebody cooked here
+                return;
+            }
+
             var.value = value;
             solved.push_back(std::make_tuple(var.name, value));
 
             for (Constraint* ptr : var.constraints){
                 Constraint& cnstrnt = *ptr;
 
-                cnstrnt.variables.erase(&var);
-                // TODO: generates segfaults probably when variable is already erased from constraint
-                cnstrnt.sum -= value;
-                if (cnstrnt.variables.size() > 0){
+                std::cout << cnstrnt.unknown.size() << std::endl;
+                if (cnstrnt.unknown.count(&var) > 0){
+                    cnstrnt.unknown.erase(&var);
+                }
+
+                if (value == 1){
+                    cnstrnt.ones_solved += 1;
+                } else {
+                    cnstrnt.zeroes_solved += 1;
+                }
+
+                if (cnstrnt.unknown.size() > 0){
                     update_queue.push_back(&cnstrnt);
                 } else {
                     cnstrnt.obsolete = true;
@@ -69,10 +82,10 @@ namespace algolab {
                 // then the constraints that include those variables
                 // are updated and added onto the queue.
                 // Then the process starts over
-                
+
                 // All variables zero
-                if (cnstrnt.sum == 0){
-                    auto vars = cnstrnt.variables;
+                if (cnstrnt.ones_solved == cnstrnt.sum){
+                    auto vars = cnstrnt.unknown;
                     for (Variable* ptr : vars){
                         Variable& var = *ptr;
                         solve_variable(var, 0);
@@ -82,8 +95,8 @@ namespace algolab {
                 } 
 
                 // All variables one
-                if (cnstrnt.variables.size() == cnstrnt.sum){
-                    auto vars = cnstrnt.variables;
+                if (cnstrnt.variables.size() - cnstrnt.zeroes_solved == cnstrnt.sum){
+                    auto vars = cnstrnt.unknown;
                     for (Variable* ptr : vars){
                         Variable& var = *ptr;
                         solve_variable(var, 1);
@@ -98,7 +111,7 @@ namespace algolab {
                 std::set<Constraint*> possible_supersets;
                 std::set<Constraint*> possible_subsets;
 
-                for (Variable* ptr : cnstrnt.variables){
+                for (Variable* ptr : cnstrnt.unknown){
                     Variable& var = *ptr;
                     //TODO
                 }
@@ -113,26 +126,29 @@ namespace algolab {
         public:
 
         void add_constraint(std::vector<var_type> vars, int sum){
-            constraints.push_back(Constraint());
-            Constraint& new_cnstrnt = constraints.back();
+            constraints.emplace_back(std::make_unique<Constraint>());
+            Constraint* new_cnstrnt = constraints.back().get();
 
             for (var_type var_name : vars){
                 if (variables.count(var_name) == 0){
-                    variables[var_name] = Variable{var_name};
+                    variables.emplace(std::make_pair(var_name, Variable{var_name}));
                 } else if (variables[var_name].value >= 0){
                     sum -= variables[var_name].value;
                     continue;
                 }
 
                 Variable& var = variables[var_name];
-                var.constraints.insert(&new_cnstrnt);
-                new_cnstrnt.variables.insert(&var);
+                var.constraints.insert(new_cnstrnt);
+                new_cnstrnt->variables.insert(&var);
+                new_cnstrnt->unknown.insert(&var);
             }
-            new_cnstrnt.sum = sum;
-            update_queue.push_back(&new_cnstrnt);
 
-            std::cout << "New constraint added, Sum: " << new_cnstrnt.sum << ", Variables: ";
-            for (Variable* ptr : new_cnstrnt.variables){
+            new_cnstrnt->sum = sum;
+            update_queue.push_back(new_cnstrnt);
+
+
+            std::cout << "New constraint added, Sum: " << new_cnstrnt->sum << ", Variables: ";
+            for (Variable* ptr : new_cnstrnt->variables){
                 Variable& var = *ptr;
                 std::cout << "(" << var.name.row << ", " << var.name.col << ") ";
             }
