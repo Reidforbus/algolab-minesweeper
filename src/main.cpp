@@ -50,11 +50,13 @@ void play_game(uint32_t board_height, uint32_t board_width, uint32_t mine_count,
             uint32_t row, col;
             char command = 'x';
             while (true) {
-                std::cin >> command >> row >> col;
+                std::cin >> command;
+                if (command == 'q') {
+                    game.cede();
+                    break;
+                }
+                std::cin >> row >> col;
                 if (std::cin.fail()) {
-                    if (command == 'q') {
-                        game.cede();
-                    }
                     std::cout << "Could not parse command. Try again." << std::endl;
                     std::cin.clear();
                     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
