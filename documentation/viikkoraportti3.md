@@ -1,6 +1,6 @@
-# Viikkoraportti 2
+# Viikkoraportti 3
 
-2. viikolla käytetyt tunnit: 5
+3. viikolla käytetyt tunnit: 5
 
 Tällä viikolla ei tullut tehtyä paljoa.
 
