@@ -5,9 +5,11 @@
 #include <bits/types/error_t.h>
 #include <cstdint>
 #include <cstdio>
+#include <ios>
 #include <iostream>
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/screen/screen.hpp>
+#include <limits>
 #include <stdexcept>
 
 #define BOARD_WIDTH 9
@@ -47,22 +49,28 @@ void play_game(uint32_t board_height, uint32_t board_width, uint32_t mine_count,
 
             uint32_t row, col;
             char command = 'x';
-            std::cin >>  command >> row >> col;
-            if (std::cin.fail()) {
-            if (command == 'q') {
-                game.cede();
-                break;
-            }
-            std::cout << "Could not parse command. Try again." << std::endl;
-            }
-            getchar();
+            while (true) {
+                std::cin >> command >> row >> col;
+                if (std::cin.fail()) {
+                    if (command == 'q') {
+                        game.cede();
+                    }
+                    std::cout << "Could not parse command. Try again." << std::endl;
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    continue;
+                }
 
-            if (command == 'f') {
-                game.flag(row - 1, col - 1);
-            } else if (command == 'o') {
-                game.open(row - 1, col - 1);
-            } else if (command == 'q'){
-                game.cede();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+                if (command == 'f') {
+                    game.flag(row - 1, col - 1);
+                } else if (command == 'o') {
+                    game.open(row - 1, col - 1);
+                } else if (command == 'q'){
+                    game.cede();
+                }
+
                 break;
             }
         }
