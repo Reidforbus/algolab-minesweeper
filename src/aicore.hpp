@@ -4,13 +4,11 @@
 #include "csp.hpp"
 #include <cstdint>
 #include <vector>
-#include <iostream>
 
 namespace algolab{
     class CSPAI{
         private:
             uint32_t height, width, mine_count;
-            std::set<Coord> mines;
             std::map<Coord, uint32_t> opened;
             std::vector<Coord> changed;
             std::vector<Coord> to_open;
@@ -18,7 +16,7 @@ namespace algolab{
             CSPGraph<Coord> csp;
 
             bool in_bounds(const Coord& sq){
-                return (sq.row >= 0) & (sq.row < height) & (sq.col >= 0) & (sq.col < width);
+                return (sq.row >= 0) && (sq.row < height) && (sq.col >= 0) && (sq.col < width);
             }
 
             bool calculate_moves(){
@@ -29,22 +27,24 @@ namespace algolab{
                     changed.pop_back();
 
                     uint32_t value = opened[open_sq];
-                    if (value == 0) continue;
+                    if (value != 0) {
 
-                    std::vector<Coord> nbrs = open_sq.neighbours();
-                    std::vector<Coord> variables;
+                        std::vector<Coord> nbrs = open_sq.neighbours();
+                        std::vector<Coord> variables;
 
-                    for (Coord sq : nbrs){
-                        if ((in_bounds(sq)) & (opened.count(sq) == 0)){
-                            variables.push_back(sq);
+                        for (Coord sq : nbrs){
+                            if (in_bounds(sq) && (opened.count(sq) == 0)){
+                                variables.push_back(sq);
+                            }
                         }
+                        csp.add_constraint(variables, value);
                     }
-                    csp.add_constraint(variables, value);
+                    csp.add_opened(open_sq);
                     progressed = true;
                 }
 
                 while (true){
-                    auto [sq, value] = csp.get_solved();
+                    auto [sq, value] = csp.get_solution();
                     if (value < 0){
                         break;
                     } else if (value == 0) {
@@ -67,7 +67,7 @@ namespace algolab{
                 for (auto j = 0;j < height; j++){
                     for (auto i = 0;i < width; i++){
                         Coord sq = {j, i};
-                        if (mines.count(sq) | opened.count(sq)){
+                        if (opened.count(sq)){
                             continue;
                         }
                         auto val = state[(j * width) + i];
@@ -87,9 +87,10 @@ namespace algolab{
                         return next;
                     }
 
-                    if (!to_open.empty()){
+                    while (!to_open.empty()){
                         Move next = {to_open.back(), OPEN, false};
                         to_open.pop_back();
+                        if (opened.count(next.coord) > 0) continue;
                         return next;
                     }
 

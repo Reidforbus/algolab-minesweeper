@@ -17,7 +17,7 @@ namespace algolab {
             int sum = -1;
             std::set<Variable*> unknown;
 
-            void print(){
+            void print() const{
                 std::cout << "Sum: " << sum << " ";
                 for (Variable* v_ptr : initial_vars){
                     if (unknown.count(v_ptr) == 1){
@@ -53,10 +53,12 @@ namespace algolab {
             var.value = value;
             solved.push_back(std::make_tuple(var.name, value));
 
-            for (Constraint* ptr : var.constraints){
+            auto cs = var.constraints;
+            for (Constraint* ptr : cs){
                 Constraint& cnstrnt = *ptr;
 
                 cnstrnt.unknown.erase(&var);
+                var.constraints.erase(&cnstrnt);
                 cnstrnt.sum -= value;
 
                 if (cnstrnt.unknown.size() > 0){
@@ -68,14 +70,14 @@ namespace algolab {
 
         }
 
-        void process_queue(){
+        void find_solutions(){
             while (!update_stack.empty()){
                 // Grab a constraint from the stack
                 Constraint& cnstrnt = *update_stack.back();
                 update_stack.pop_back();
 
                 // In case the constraint has been rendered obsolete before reaching top of stack
-                if (cnstrnt.obsolete) continue;
+                if (cnstrnt.unknown.size() == 0) continue;
 
                 // If the constraint is trivial the variables are solved
                 // then the constraints that include those variables
@@ -135,20 +137,16 @@ namespace algolab {
 
                 if (subset != nullptr){
 
-                    std::cout << "\nFound a subset! ";
-                    subset->print();
-                    cnstrnt.print();
                     cnstrnt.sum -= subset->sum;
 
                     for (Variable* v_ptr : subset->unknown){
                         cnstrnt.unknown.erase(v_ptr);
+                        v_ptr->constraints.erase(&cnstrnt);
                     }
-                    cnstrnt.print();
                     update_stack.push_back(&cnstrnt);
                     continue;
                 }
 
-                continue;
                 // Supersets
                 std::set<Constraint*> supersets;
 
@@ -179,19 +177,17 @@ namespace algolab {
                 // If any supersets are found, their sum is reduced and variables cut
 
                 if (supersets.size() > 0){
-                    std::cout << "\nFound a superset! ";
-                    cnstrnt.print();
                     for (Constraint* c_ptr : supersets){
                         Constraint& c = *c_ptr;
-                        c.print();
 
                         c.sum  -= cnstrnt.sum;
 
-                        for (Variable* v_ptr : cnstrnt.unknown){
+                        auto vars = cnstrnt.unknown;
+                        for (Variable* v_ptr : vars){
                             c.unknown.erase(v_ptr);
+                            v_ptr->constraints.erase(&c);
                         }
 
-                        c.print();
                         update_stack.push_back(&c);
                     }
                     continue;
@@ -204,6 +200,15 @@ namespace algolab {
         }
 
         public:
+
+        void add_opened(var_type var_name){
+            if (variables.count(var_name) == 0){
+                variables.emplace(std::make_pair(var_name, Variable{var_name}));
+            }
+            Variable& var = variables[var_name];
+            solve_variable(var, 0);
+            find_solutions();
+        }
 
         void add_constraint(std::vector<var_type> vars, int sum){
             constraints.emplace_back(std::make_unique<Constraint>());
@@ -225,11 +230,9 @@ namespace algolab {
 
             new_cnstrnt->sum = sum;
             update_stack.push_back(new_cnstrnt);
-
-            process_queue();
         }
 
-        std::tuple<var_type, int> get_solved(){
+        std::tuple<var_type, int> get_solution(){
             if (solved.empty()){
                 return std::make_tuple(var_type(), -1);
             }
