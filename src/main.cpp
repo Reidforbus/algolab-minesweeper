@@ -46,6 +46,7 @@ void play_game(uint32_t board_height, uint32_t board_width, uint32_t mine_count)
                 game.cede();
                 break;
             }
+            getchar();
 
             if (command == 'f') {
                 game.flag(row - 1, col - 1);
@@ -61,7 +62,7 @@ void play_game(uint32_t board_height, uint32_t board_width, uint32_t mine_count)
 
 int main(int argc, char** argv) {
 
-    play_game(12, 12, 40);
+    play_game(16, 16, 40);
 
     return EXIT_SUCCESS;
 }

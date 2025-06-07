@@ -24,6 +24,7 @@ namespace algolab{
         uint32_t opened;
         std::vector<std::vector<Square>> board;
         bool game_over;
+        Coord last_move{-1,-1};
 
         void end_game(){
             game_over = true;
@@ -128,6 +129,7 @@ namespace algolab{
                 std::cout << "Was out of bounds" << std::endl;
                 return true;
             }
+            last_move = {int(row), int(col)};
 
             Square* slot = &board[row][col];
             if (slot->open){
@@ -155,6 +157,9 @@ namespace algolab{
                     } else if (sq.flagged) {
                         x = 11;
                     }
+                    if (sq.coord == last_move){
+                        x += 16;
+                    }
                     state.push_back(x);
                 }
             }
@@ -165,6 +170,8 @@ namespace algolab{
             if (!in_bounds(row, col)){
                 return;
             }
+            last_move = {int(row), int(col)};
+
             Square* slot = &board[row][col];
             if (slot->open){
                 return;

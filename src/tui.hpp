@@ -43,9 +43,14 @@ namespace algolab{
                         }) | ftxui::center;
             }
 
-            auto square(std::string s, bool open){
+            auto square(std::string s, bool open, bool latest){
                 ftxui::Color number_color;
                 ftxui::BorderStyle border;
+                ftxui::Color bg_color;
+
+                if (latest) {
+                    bg_color = ftxui::Color::Red;
+                }
 
 
                 if (!open) {
@@ -84,6 +89,7 @@ namespace algolab{
                 auto sq = ftxui::hbox(content) |
                     ftxui::size(ftxui::WIDTH, ftxui::EQUAL, 3) |
                     ftxui::size(ftxui::HEIGHT, ftxui::EQUAL, 1) |
+                    ftxui::bgcolor(bg_color) |
                     ftxui::borderStyled(border);
                 return sq;
             }
@@ -100,7 +106,7 @@ namespace algolab{
                     std::vector<ftxui::Element> row;
                     for (auto i = 0; i < w; i++) {
 
-                        row.push_back(square("  ", false));
+                        row.push_back(square("  ", false, false));
                     }
                     board.push_back(row);
                 }
@@ -111,6 +117,8 @@ namespace algolab{
                 for (auto j = 0;j < board_h; j++){
                     for (auto i = 0;i < board_w; i++){
                         auto val = state[(j * board_w) + i];
+                        bool last_move = val >= 16;
+                        val %= 16;
                         std::string sq = "  ";
                         bool open = val < 10;
 
@@ -121,7 +129,7 @@ namespace algolab{
                         } else if (val == 11) {
                             sq = "🚩";
                         }
-                        board[j][i] = square(sq, open);
+                        board[j][i] = square(sq, open, last_move);
                     }
                 }
             }
