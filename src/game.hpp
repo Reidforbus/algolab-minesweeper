@@ -48,7 +48,7 @@ namespace algolab{
                 for (auto i = 0; i < width; i++){
 
                     Square& sq = board[j][i];
-                    if (sq.open & sq.mine){
+                    if (sq.open && sq.mine){
                         game_lost();
                         return false;
                     } else if (sq.open){
@@ -64,7 +64,7 @@ namespace algolab{
         }
 
         bool in_bounds(int row, int col){
-            return ((row >= 0) & (row < height) & (col >= 0) & (col < width));
+            return ((row >= 0) && (row < height) && (col >= 0) && (col < width));
         }
 
         void spread_open(uint32_t row, uint32_t col){
@@ -107,14 +107,12 @@ namespace algolab{
             mine_count = m;
             game_over = false;
             board.clear();
-            std::mt19937 randomizer;
 
-            if (seeded){
-            randomizer = std::mt19937(seed);
-            }else{
-                std::random_device rd;
-                randomizer = std::mt19937(rd());
+            if (!seeded){
+                seed = std::random_device()();
             }
+            std::cout << "Playing with seed: " << seed << std::endl;
+            std::mt19937 randomizer(seed);
             std::uniform_int_distribution<> distributor(0, (height * width) - 1);
 
             std::vector<bool> mines(height*width);
@@ -178,7 +176,7 @@ namespace algolab{
             for (auto row : board) {
                 for (Square sq : row) {
                     uint32_t x = 10;
-                    if (sq.open & sq.mine) {
+                    if (sq.open && sq.mine) {
                         x = 9;
                     } else if (sq.open) {
                         x = sq.adjacent_mines;
