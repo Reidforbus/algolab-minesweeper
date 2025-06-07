@@ -2,16 +2,22 @@
 #include "tui.hpp"
 #include "aicore.hpp"
 #include "utilities.hpp"
+#include <bits/types/error_t.h>
 #include <cstdint>
 #include <cstdio>
 #include <iostream>
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/screen/screen.hpp>
+#include <stdexcept>
 
-void play_game(uint32_t board_height, uint32_t board_width, uint32_t mine_count){
+#define BOARD_WIDTH 9
+#define BOARD_HEIGHT 9
+#define NUMBER_OF_MINES 10
+
+void play_game(uint32_t board_height, uint32_t board_width, uint32_t mine_count, int seed, bool seeded){
 
     algolab::Minegame game;
-    game.new_game(board_height, board_width, mine_count);
+    game.new_game(board_height, board_width, mine_count, seed, seeded);
 
     algolab::GameTUI tui;
     tui.new_game(board_height, board_width);
@@ -40,18 +46,24 @@ void play_game(uint32_t board_height, uint32_t board_width, uint32_t mine_count)
         } else {
 
             uint32_t row, col;
-            char command = 'o';
-            std::cin >> row >> col >> command;
+            char command = 'x';
+            std::cin >>  command >> row >> col;
             if (std::cin.fail()) {
+            if (command == 'q') {
                 game.cede();
                 break;
+            }
+            std::cout << "Could not parse command. Try again." << std::endl;
             }
             getchar();
 
             if (command == 'f') {
                 game.flag(row - 1, col - 1);
-            } else {
+            } else if (command == 'o') {
                 game.open(row - 1, col - 1);
+            } else if (command == 'q'){
+                game.cede();
+                break;
             }
         }
     }
@@ -62,7 +74,25 @@ void play_game(uint32_t board_height, uint32_t board_width, uint32_t mine_count)
 
 int main(int argc, char** argv) {
 
-    play_game(16, 16, 40);
+    int i = 1;
+    int seed = 0;
+    bool seeded = false;
+    if (argc >= 3) {
+        std::string flag(argv[i++]);
+        if (flag.compare("-s") == 0){
+            try {
+                seed = stoi(std::string(argv[i]));
+                seeded = true;
+            } catch (std::invalid_argument) {
+                std::cerr << "Invalid seed. Please give a whole number" << std::endl;
+                return EXIT_FAILURE;
+            }
+
+        }
+    }
+
+
+    play_game(BOARD_HEIGHT, BOARD_WIDTH, NUMBER_OF_MINES, seed, seeded);
 
     return EXIT_SUCCESS;
 }

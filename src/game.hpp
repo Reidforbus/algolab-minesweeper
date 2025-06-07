@@ -21,12 +21,12 @@ namespace algolab{
         uint32_t height;
         uint32_t width;
         uint32_t mine_count;
-        uint32_t opened;
         std::vector<std::vector<Square>> board;
         bool game_over;
         Coord last_move{-1,-1};
 
-        void end_game(){
+        
+        void game_lost(){
             game_over = true;
             std::cout << "GAME OVER" << std::endl;
             for (auto j = 0; j < height; j++){
@@ -34,6 +34,33 @@ namespace algolab{
                     board[j][i].open = true;
                 }
             }
+        }
+
+        void game_won(){
+            game_over = true;
+            std::cout << "GAME WON :)" << std::endl;
+        }
+
+
+        bool check_board(){
+            int opened = 0;
+            for (auto j = 0; j < height; j++){
+                for (auto i = 0; i < width; i++){
+
+                    Square& sq = board[j][i];
+                    if (sq.open & sq.mine){
+                        game_lost();
+                        return false;
+                    } else if (sq.open){
+                        opened++;
+                    }
+                }
+            }
+            if (opened == ((height * width) - mine_count)){
+                game_won();
+                return false;
+            }
+            return true;
         }
 
         bool in_bounds(int row, int col){
@@ -71,18 +98,23 @@ namespace algolab{
         }
 
         void cede(){
-            end_game();
+            game_lost();
         }
 
-        void new_game(uint32_t h, uint32_t w, uint32_t m, uint32_t seed = 0){
+        void new_game(uint32_t h, uint32_t w, uint32_t m, uint32_t seed, bool seeded){
             height = h;
             width = w;
             mine_count = m;
             game_over = false;
             board.clear();
-            opened = 0;
+            std::mt19937 randomizer;
 
-            std::mt19937 randomizer(seed);
+            if (seeded){
+            randomizer = std::mt19937(seed);
+            }else{
+                std::random_device rd;
+                randomizer = std::mt19937(rd());
+            }
             std::uniform_int_distribution<> distributor(0, (height * width) - 1);
 
             std::vector<bool> mines(height*width);
@@ -136,13 +168,9 @@ namespace algolab{
                 return true;
             }
 
-            if (slot->mine){
-                end_game();
-            } else {
-                spread_open(row, col);
-            }
+            spread_open(row, col);
+            return check_board();
 
-            return !slot->mine;
         }
 
         std::vector<uint32_t> get_state() {
