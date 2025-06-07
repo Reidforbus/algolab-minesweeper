@@ -34,14 +34,11 @@ namespace algolab{
                     std::vector<Coord> nbrs = open_sq.neighbours();
                     std::vector<Coord> variables;
 
-                    std::cout << "[" << open_sq.row << " " << open_sq.col << "] ";
                     for (Coord sq : nbrs){
                         if ((in_bounds(sq)) & (opened.count(sq) == 0)){
                             variables.push_back(sq);
-                            std::cout << "(" << sq.row << " " << sq.col << ") ";
                         }
                     }
-                    std::cout << value << std::endl;
                     csp.add_constraint(variables, value);
                     progressed = true;
                 }
