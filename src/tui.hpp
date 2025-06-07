@@ -46,17 +46,15 @@ namespace algolab{
             auto square(std::string s, bool open, bool latest){
                 ftxui::Color number_color;
                 ftxui::BorderStyle border;
-                ftxui::Color bg_color;
+                ftxui::Color border_color;
 
-                if (latest) {
-                    bg_color = ftxui::Color::Red;
-                }
 
 
                 if (!open) {
                     border = ftxui::HEAVY;
                 } else {
                     border = ftxui::EMPTY;
+
 
                     switch (std::atoi(s.c_str())){
                         case 1:
@@ -81,6 +79,10 @@ namespace algolab{
                             break;
                     }
                 }
+                if (latest){
+                    border = ftxui::LIGHT;
+                    border_color = ftxui::Color::Red;
+                }
                 auto content = ftxui::text(s) | 
                     ftxui::center |
                     ftxui::flex_grow |
@@ -89,8 +91,8 @@ namespace algolab{
                 auto sq = ftxui::hbox(content) |
                     ftxui::size(ftxui::WIDTH, ftxui::EQUAL, 3) |
                     ftxui::size(ftxui::HEIGHT, ftxui::EQUAL, 1) |
-                    ftxui::bgcolor(bg_color) |
-                    ftxui::borderStyled(border);
+                    ftxui::borderStyled(border) |
+                    ftxui::color(border_color);
                 return sq;
             }
 
@@ -122,7 +124,7 @@ namespace algolab{
                         std::string sq = "  ";
                         bool open = val < 10;
 
-                        if (val < 9 & val > 0){
+                        if (val < 9 && val > 0){
                             sq = std::to_string(val);
                         } else if (val == 9) {
                             sq = "💣";
