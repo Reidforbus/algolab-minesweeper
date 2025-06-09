@@ -40,7 +40,6 @@ namespace algolab{
                         csp.add_constraint(variables, value);
                     }
                     csp.add_opened(open_sq);
-                    progressed = true;
                 }
 
                 while (true){
@@ -59,6 +58,17 @@ namespace algolab{
                 return progressed;
             }
 
+            bool make_guess(){
+                const Coord corners[] = {{0, 0}, {0, int(width) - 1}, {int(height) - 1, 0}, {int(height) - 1, int(width) - 1}};
+                for (Coord sq : corners){
+                    if (opened.count(sq) == 0){
+                        to_open.push_back(sq);
+                        return true;
+                    }
+                }
+                return false;
+            }
+
         public:
             CSPAI(uint32_t h, uint32_t w, uint32_t m):
                 height(h), width(w), mine_count(m){}
@@ -70,7 +80,7 @@ namespace algolab{
                         if (opened.count(sq)){
                             continue;
                         }
-                        auto val = state[(j * width) + i];
+                        auto val = state[(j * width) + i] % 16;
                         if (val < 9){
                             changed.push_back(sq);
                             opened[sq] = val;
@@ -80,6 +90,7 @@ namespace algolab{
             }
 
             Move get_next_move(){
+
                 while (true) {
                     if (!to_flag.empty()){
                         Move next = {to_flag.back(), FLAG, false};
@@ -97,6 +108,12 @@ namespace algolab{
                     bool found_moves = calculate_moves();
 
                     if (!found_moves){
+                        if (make_guess()){
+                            Move guess = {to_open.back(), OPEN, true};
+                            to_open.pop_back();
+                            return guess;
+                        }
+
                         break;
                     }
 

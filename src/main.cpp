@@ -11,10 +11,11 @@
 #include <ftxui/screen/screen.hpp>
 #include <limits>
 #include <stdexcept>
+#include <string>
 
-#define BOARD_WIDTH 9
-#define BOARD_HEIGHT 9
-#define NUMBER_OF_MINES 10
+#define BOARD_HEIGHT 16
+#define BOARD_WIDTH 16
+#define NUMBER_OF_MINES 40
 
 void play_game(uint32_t board_height, uint32_t board_width, uint32_t mine_count, int seed, bool seeded){
 
@@ -36,7 +37,11 @@ void play_game(uint32_t board_height, uint32_t board_width, uint32_t mine_count,
         auto next_move = ai.get_next_move();
 
         if (next_move.action != algolab::FAIL){
+            if (next_move.guess){
+            std::cout << "AI is making a guess. Press enter to play" << std::endl;
+            } else {
             std::cout << "AI found a move. Press enter to play" << std::endl;
+            }
             getchar();
 
             if (next_move.action == algolab::OPEN){
@@ -91,7 +96,7 @@ int main(int argc, char** argv) {
         std::string flag(argv[i++]);
         if (flag.compare("-s") == 0){
             try {
-                seed = stoi(std::string(argv[i]));
+                seed = std::stoul(std::string(argv[i]));
                 seeded = true;
             } catch (std::invalid_argument) {
                 std::cerr << "Invalid seed. Please give a whole number" << std::endl;

@@ -159,12 +159,13 @@ namespace algolab{
                 std::cout << "Was out of bounds" << std::endl;
                 return true;
             }
-            last_move = {int(row), int(col)};
 
             Square* slot = &board[row][col];
             if (slot->open){
                 return true;
             }
+
+            last_move = {int(row), int(col)};
 
             spread_open(row, col);
             return check_board();
@@ -196,12 +197,12 @@ namespace algolab{
             if (!in_bounds(row, col)){
                 return;
             }
-            last_move = {int(row), int(col)};
 
             Square* slot = &board[row][col];
             if (slot->open){
                 return;
             }
+            last_move = {int(row), int(col)};
             slot->flagged = !slot->flagged;
         }
 

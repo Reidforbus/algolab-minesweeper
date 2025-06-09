@@ -12,7 +12,6 @@ namespace algolab {
         struct Variable;
 
         struct Constraint {
-            bool obsolete = false;
             std::set<Variable*> initial_vars;
             int sum = -1;
             std::set<Variable*> unknown;
@@ -25,6 +24,10 @@ namespace algolab {
                     }
                 }
                 std::cout << std::endl;
+            }
+
+            bool obsolete(){
+                return unknown.size() == 0;
             }
         };
 
@@ -61,10 +64,8 @@ namespace algolab {
                 var.constraints.erase(&cnstrnt);
                 cnstrnt.sum -= value;
 
-                if (cnstrnt.unknown.size() > 0){
+                if (!cnstrnt.obsolete()){
                     update_stack.push_back(&cnstrnt);
-                } else {
-                    cnstrnt.obsolete = true;
                 }
             }
 
@@ -77,7 +78,7 @@ namespace algolab {
                 update_stack.pop_back();
 
                 // In case the constraint has been rendered obsolete before reaching top of stack
-                if (cnstrnt.unknown.size() == 0) continue;
+                if (cnstrnt.obsolete()) continue;
 
                 // If the constraint is trivial the variables are solved
                 // then the constraints that include those variables
@@ -116,7 +117,7 @@ namespace algolab {
                 for (Variable* v_ptr : cnstrnt.unknown){
                     for (Constraint* c_ptr : v_ptr->constraints){
                         Constraint& c = *c_ptr;
-                        if ((c.unknown.size() >= cnstrnt.unknown.size()) | (c.unknown.size() == 0)) continue;
+                        if ((c.unknown.size() >= cnstrnt.unknown.size()) | c.obsolete()) continue;
 
                         bool valid = true;
                         for (Variable* v2_ptr : c.unknown){
@@ -143,7 +144,9 @@ namespace algolab {
                         cnstrnt.unknown.erase(v_ptr);
                         v_ptr->constraints.erase(&cnstrnt);
                     }
-                    update_stack.push_back(&cnstrnt);
+                    if (!cnstrnt.obsolete()){
+                        update_stack.push_back(&cnstrnt);
+                    }
                     continue;
                 }
 
@@ -188,18 +191,27 @@ namespace algolab {
                             v_ptr->constraints.erase(&c);
                         }
 
-                        update_stack.push_back(&c);
+                        if (!c.obsolete()){
+                            update_stack.push_back(&c);
+                        }
                     }
                     continue;
                 }
             }
 
             //TODO: When queue is empty and no solutions are ready,
-            // move to a backtracking search for all possible solutions
-            // and find common ones and zeroes
+            // divide constraints to connected groups and
+            // do a backtracking search for all possible solutions
+            // for each group and find common ones and zeroes
         }
 
         public:
+
+        void print_unsolved() const{
+            for (auto& c : constraints){
+                if (!c->obsolete()) c->print();
+            }
+        }
 
         void add_opened(var_type var_name){
             if (variables.count(var_name) == 0){
