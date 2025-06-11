@@ -18,6 +18,7 @@ namespace algolab{
 
         private:
 
+        uint32_t seed = 0;
         uint32_t height;
         uint32_t width;
         uint32_t mine_count;
@@ -28,7 +29,8 @@ namespace algolab{
         
         void game_lost(){
             game_over = true;
-            std::cout << "GAME OVER" << std::endl;
+            std::cerr << "GAME OVER" << std::endl;
+            std::cerr << "Played with seed: " << seed << std::endl;
             for (auto j = 0; j < height; j++){
                 for (auto i = 0; i < width; i++){
                     board[j][i].open = true;
@@ -38,7 +40,8 @@ namespace algolab{
 
         void game_won(){
             game_over = true;
-            std::cout << "GAME WON :)" << std::endl;
+            std::cerr << "GAME WON :)" << std::endl;
+            std::cerr << "Played with seed: " << seed << std::endl;
         }
 
 
@@ -101,17 +104,22 @@ namespace algolab{
             game_lost();
         }
 
-        void new_game(uint32_t h, uint32_t w, uint32_t m, uint32_t seed, bool seeded){
+        uint32_t get_seed(){
+            return seed;
+        }
+
+        void new_game(uint32_t h, uint32_t w, uint32_t m, uint32_t new_seed, bool seeded){
             height = h;
             width = w;
             mine_count = m;
             game_over = false;
             board.clear();
+            seed = new_seed;
 
             if (!seeded){
                 seed = std::random_device()();
             }
-            std::cout << "Playing with seed: " << seed << std::endl;
+            std::cerr << "Playing with seed: " << seed << std::endl;
             std::mt19937 randomizer(seed);
             std::uniform_int_distribution<> distributor(0, (height * width) - 1);
 
@@ -142,7 +150,6 @@ namespace algolab{
                     Square* sq = &board[y][x];
                     if (sq->mine) {
                         for (auto nbr : sq->coord.neighbours()) {
-                            //std::cout << nbr.row << " " << nbr.col << std::endl;
                             if (in_bounds(nbr.row, nbr.col)){
                                 board[nbr.row][nbr.col].adjacent_mines++;
                             }
