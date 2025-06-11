@@ -153,7 +153,7 @@ namespace algolab{
 
 
                     if (!found_moves){
-                        if (csp.try_brute_force()){
+                        if (csp.brute_force_search()){
                             continue;
                         }
                         if (make_guess()){
