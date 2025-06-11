@@ -14,8 +14,8 @@
 #include <string>
 
 #define BOARD_HEIGHT 16
-#define BOARD_WIDTH 16
-#define NUMBER_OF_MINES 40
+#define BOARD_WIDTH 30
+#define NUMBER_OF_MINES 99
 
 void play_game(uint32_t board_height, uint32_t board_width, uint32_t mine_count, int seed, bool seeded){
 
@@ -52,6 +52,7 @@ void play_game(uint32_t board_height, uint32_t board_width, uint32_t mine_count,
 
         } else {
 
+            std::cerr << "AI couldn't make a move, can you help?" << std::endl;
             uint32_t row, col;
             char command = 'x';
             while (true) {
@@ -100,6 +101,9 @@ int main(int argc, char** argv) {
                 seeded = true;
             } catch (std::invalid_argument) {
                 std::cerr << "Invalid seed. Please give a whole number" << std::endl;
+                return EXIT_FAILURE;
+            } catch (std::out_of_range) {
+                std::cerr << "Seed is too big. It can't be more than " << ((uint32_t)0 - 1) << std::endl;
                 return EXIT_FAILURE;
             }
 
