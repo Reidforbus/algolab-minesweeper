@@ -2,6 +2,7 @@
 
 #include <tuple>
 #include <vector>
+#include <ostream>
 
 namespace algolab{
     struct Coord {
@@ -35,7 +36,12 @@ namespace algolab{
             return result;
         }
 
+
     };
+
+    inline std::ostream& operator<<(std::ostream& out, const Coord& a) {
+        return out << "(" << a.row << ", " << a.col << ")";
+    }
 
     enum Move_action {
         OPEN,
