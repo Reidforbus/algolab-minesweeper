@@ -3,6 +3,8 @@
 #include "utilities.hpp"
 #include "csp.hpp"
 #include <cstdint>
+#include <cstdlib>
+#include <random>
 #include <vector>
 
 namespace algolab{
@@ -10,23 +12,41 @@ namespace algolab{
         private:
             uint32_t height, width, mine_count;
             std::map<Coord, uint32_t> opened;
+            std::set<Coord> mines;
+            std::set<Coord> unknown;
             std::vector<Coord> changed;
             std::vector<Coord> to_open;
             std::vector<Coord> to_flag;
             CSPGraph<Coord> csp;
+            int end_game_threshold = 16;
+            bool end_game = false;
 
             bool in_bounds(const Coord& sq){
                 return (sq.row >= 0) && (sq.row < height) && (sq.col >= 0) && (sq.col < width);
             }
 
+            bool check_end_game(){
+                if (!end_game){
+                    if (unknown.size() < end_game_threshold){
+                        std::cerr << "Entering end game" << std::endl;
+                        end_game = true;
+                        std::vector<Coord> variables(unknown.begin(), unknown.end());
+                        csp.add_constraint(variables, mine_count - mines.size());
+                        return true;
+                    }
+                }
+                return false;
+            }
+
             bool calculate_moves(){
-                bool progressed = false;
+                bool progressed = check_end_game();
 
                 while (!changed.empty()){
                     Coord open_sq = changed.back();
                     changed.pop_back();
 
                     uint32_t value = opened[open_sq];
+                    csp.update_remaining_ones(mine_count - mines.size());
                     if (value != 0) {
 
                         std::vector<Coord> nbrs = open_sq.neighbours();
@@ -49,6 +69,8 @@ namespace algolab{
                     } else if (value == 0) {
                         to_open.push_back(sq);
                     } else if (value == 1) {
+                        mines.insert(sq);
+                        unknown.erase(sq);
                         to_flag.push_back(sq);
                     }
 
@@ -61,22 +83,43 @@ namespace algolab{
             bool make_guess(){
                 const Coord corners[] = {{0, 0}, {0, int(width) - 1}, {int(height) - 1, 0}, {int(height) - 1, int(width) - 1}};
                 for (Coord sq : corners){
-                    if (opened.count(sq) == 0){
+                    if (unknown.count(sq)){
                         to_open.push_back(sq);
                         return true;
                     }
                 }
+
+                if (!unknown.empty()){
+                    std::uniform_int_distribution<> distributor(0, unknown.size()-1);
+                    std::random_device rd;
+                    std::mt19937 rng(rd());
+                    uint32_t idx = distributor(rng);
+                    auto iter = unknown.cbegin();
+                    for (uint32_t i = 0; i < idx; i++){
+                        iter++;
+                    }
+                    to_open.push_back(*iter);
+                    return true;
+                }
+
                 return false;
             }
 
         public:
             CSPAI(uint32_t h, uint32_t w, uint32_t m):
-                height(h), width(w), mine_count(m){}
+                height(h), width(w), mine_count(m){
+                        for (auto j = 0;j < height; j++){
+                            for (auto i = 0;i < width; i++){
+                                Coord sq(j, i);
+                                unknown.insert(sq);
+                            }
+                        }
+                }
 
             void update_state(std::vector<uint32_t> state){
                 for (auto j = 0;j < height; j++){
                     for (auto i = 0;i < width; i++){
-                        Coord sq = {j, i};
+                        Coord sq(j, i);
                         if (opened.count(sq)){
                             continue;
                         }
@@ -84,6 +127,7 @@ namespace algolab{
                         if (val < 9){
                             changed.push_back(sq);
                             opened[sq] = val;
+                            unknown.erase(sq);
                         }
                     }
                 }
@@ -107,7 +151,11 @@ namespace algolab{
 
                     bool found_moves = calculate_moves();
 
+
                     if (!found_moves){
+                        if (csp.try_brute_force()){
+                            continue;
+                        }
                         if (make_guess()){
                             Move guess = {to_open.back(), OPEN, true};
                             to_open.pop_back();

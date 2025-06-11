@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <memory>
 #include <set>
 #include <tuple>
@@ -8,6 +9,9 @@
 #include <iostream>
 
 namespace algolab {
+
+    const uint64_t ONE = 1;
+
     template <typename var_type> class CSPGraph{
         struct Variable;
 
@@ -37,6 +41,10 @@ namespace algolab {
             int value = -1;
         };
 
+        struct Constraint_Mask {
+            uint64_t mask;
+            int sum;
+        };
 
         private:
 
@@ -46,6 +54,9 @@ namespace algolab {
         std::vector<Constraint*> update_stack;
 
         std::vector<std::tuple<var_type, int>> solved;
+
+
+        int max_n = -1;
 
         void solve_variable(Variable& var, int value){
             if (var.value != -1) {
@@ -69,6 +80,129 @@ namespace algolab {
                 }
             }
 
+        }
+
+        void component_scan(Constraint& c, std::map<Constraint*, int>& components, int id, std::vector<Constraint*>& c_vec, std::vector<Variable*>& v_vec){
+                if (components.count(&c)){
+                    return;
+                }
+                components[&c] = id;
+                c_vec.push_back(&c);
+
+                for (Variable* v_ptr : c.unknown){
+                    bool found = false;
+                    for (Variable* v2_ptr : v_vec){
+                        if (v2_ptr == v_ptr){
+                            found = true;
+                        }
+                    }
+                    if (!found){
+                        v_vec.push_back(v_ptr);
+                    }
+                    for (Constraint* next_c_ptr : v_ptr->constraints){
+                        component_scan(*next_c_ptr, components, id, c_vec, v_vec);
+                    }
+                }
+        }
+
+        void search_recursively(uint64_t partial_solution, int depth, int n, std::vector<uint64_t>& solution_vec, std::vector<Constraint_Mask>& masks){
+            if (depth == n){
+                for (Constraint_Mask mask : masks){
+                    if (std::__popcount(partial_solution & mask.mask) != mask.sum) return;
+                }
+                solution_vec.push_back(partial_solution);
+                return;
+            }
+
+            for (Constraint_Mask mask : masks){
+                if (std::__popcount(partial_solution & mask.mask) > mask.sum) return;
+            }
+
+
+            search_recursively(partial_solution + (ONE << depth), depth + 1, n, solution_vec, masks);
+            search_recursively(partial_solution, depth + 1, n, solution_vec, masks);
+        }
+
+        bool divide_and_search(){
+            bool found_solutions = false;
+
+            int component_id = 0;
+            std::map<Constraint*, int> component_map;
+
+            std::vector<std::vector<Constraint*>> comp_constraints;
+            std::vector<std::vector<Variable*>> comp_variables;
+
+            for (auto&& uniq_c_ptr : constraints){
+                Constraint& cnstrnt = *uniq_c_ptr;
+                if (cnstrnt.obsolete()) continue;
+
+                if (!component_map.count(&cnstrnt)){
+                    component_scan(cnstrnt, component_map, ++component_id, comp_constraints.emplace_back(), comp_variables.emplace_back());
+                }
+            }
+
+
+            for (int id = 0; id < component_id; id++){
+                if (comp_constraints[id].size() < 2) continue;
+                int n = comp_variables[id].size();
+
+                if (n > 64) continue;
+
+                std::vector<Constraint_Mask> masks;
+                for (Constraint* c_ptr : comp_constraints[id]){
+                    uint64_t mask = 0;
+                    for (int i = 0; i < n; i++){
+                        if (c_ptr->unknown.count(comp_variables[id][i])){
+                            mask += (ONE << i);
+                        }
+                    }
+                    masks.emplace_back(Constraint_Mask{mask, c_ptr->sum});
+                }
+
+                std::vector<uint64_t> solutions;
+                search_recursively(0, 0, n, solutions, masks);
+
+                if (solutions.empty()) continue;
+
+                uint64_t ones = (ONE << n) - 1;
+                uint64_t zeroes = (ONE << n) - 1;
+                bool valid = false;
+
+                for (uint64_t solution : solutions){
+                    if (std::__popcount(solution) > max_n){
+                        continue;
+                    }
+                    valid = true;
+                    ones &= solution;
+                    zeroes &= ~solution;
+                }
+                if (!valid) continue;
+
+                if (ones != 0){
+                    for (int i = 0; i < n; i++){
+                        if (ones & (ONE << i)){
+                            Variable& var = *comp_variables[id][i];
+                            found_solutions = true;
+                            solve_variable(var, 1);
+                        }
+                    }
+                }
+
+                if (ones != 0){
+                    for (int i = 0; i < n; i++){
+                        if (zeroes & (ONE << i)){
+                            Variable& var = *comp_variables[id][i];
+                            found_solutions = true;
+                            solve_variable(var, 0);
+                        }
+                    }
+                }
+
+
+
+            }
+
+            return found_solutions;
         }
 
         void find_solutions(){
@@ -199,13 +333,18 @@ namespace algolab {
                 }
             }
 
-            //TODO: When queue is empty and no solutions are ready,
-            // divide constraints to connected groups and
-            // do a backtracking search for all possible solutions
-            // for each group and find common ones and zeroes
+
         }
 
         public:
+
+        void update_remaining_ones(int n){
+            max_n = n; 
+        }
+
+        bool brute_force_search(){
+            return divide_and_search();
+        }
 
         void print_unsolved() const{
             for (auto& c : constraints){
@@ -245,6 +384,7 @@ namespace algolab {
         }
 
         std::tuple<var_type, int> get_solution(){
+            find_solutions();
             if (solved.empty()){
                 return std::make_tuple(var_type(), -1);
             }
