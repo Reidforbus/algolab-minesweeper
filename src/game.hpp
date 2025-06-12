@@ -1,36 +1,35 @@
-#include <cstdint>
-#include <cstdlib>
-#include <iostream>
+#pragma once
+
+#include "utilities.hpp"
 #include <random>
 #include <set>
-#include <vector>
-#include "utilities.hpp"
 
 namespace algolab{
     class Minegame{
+        friend class MinegameTest;
+
         struct Square{
             bool mine;
             bool open = false;
             bool flagged = false;
-            uint32_t adjacent_mines = 0;
+            int adjacent_mines = 0;
             Coord coord;
         };
 
         private:
 
         uint32_t seed = 0;
-        uint32_t height;
-        uint32_t width;
-        uint32_t mine_count;
+        int height;
+        int width;
+        int mine_count;
         std::vector<std::vector<Square>> board;
         bool game_over;
+        bool winner;
         Coord last_move{-1,-1};
 
-        
+
         void game_lost(){
             game_over = true;
-            std::cerr << "GAME OVER" << std::endl;
-            std::cerr << "Played with seed: " << seed << std::endl;
             for (auto j = 0; j < height; j++){
                 for (auto i = 0; i < width; i++){
                     board[j][i].open = true;
@@ -40,8 +39,7 @@ namespace algolab{
 
         void game_won(){
             game_over = true;
-            std::cerr << "GAME WON :)" << std::endl;
-            std::cerr << "Played with seed: " << seed << std::endl;
+            winner = true;
         }
 
 
@@ -70,8 +68,8 @@ namespace algolab{
             return ((row >= 0) && (row < height) && (col >= 0) && (col < width));
         }
 
-        void spread_open(uint32_t row, uint32_t col){
-            uint32_t n = 0;
+        void spread_open(int row, int col){
+            int n = 0;
             std::vector<Coord> stack;
             std::set<Coord> seen;
             stack.push_back(Coord(row, col));
@@ -100,6 +98,10 @@ namespace algolab{
             return game_over;
         }
 
+        bool was_won(){
+            return winner;
+        }
+
         void cede(){
             game_lost();
         }
@@ -108,18 +110,21 @@ namespace algolab{
             return seed;
         }
 
-        void new_game(uint32_t h, uint32_t w, uint32_t m, uint32_t new_seed, bool seeded){
+        void new_game(int h, int w, int m, uint32_t new_seed, bool seeded){
             height = h;
             width = w;
+            if (h <= 0 || w <= 0 || m <= 0 || m >= (h * w)){
+                throw std::invalid_argument("Parameters were invalid");
+            }
             mine_count = m;
             game_over = false;
+            winner = false;
             board.clear();
             seed = new_seed;
 
             if (!seeded){
                 seed = std::random_device()();
             }
-            std::cerr << "Playing with seed: " << seed << std::endl;
             std::mt19937 randomizer(seed);
             std::uniform_int_distribution<> distributor(0, (height * width) - 1);
 
@@ -159,9 +164,7 @@ namespace algolab{
             }
         }
 
-
-
-        bool open(uint32_t row, uint32_t col) {
+        bool open(int row, int col) {
             if (!in_bounds(row, col)) {
                 std::cout << "Was out of bounds" << std::endl;
                 return true;
@@ -179,11 +182,11 @@ namespace algolab{
 
         }
 
-        std::vector<uint32_t> get_state() {
-            std::vector<uint32_t> state;
+        std::vector<int> get_state() {
+            std::vector<int> state;
             for (auto row : board) {
                 for (Square sq : row) {
-                    uint32_t x = 10;
+                    int x = 10;
                     if (sq.open && sq.mine) {
                         x = 9;
                     } else if (sq.open) {
@@ -200,7 +203,7 @@ namespace algolab{
             return state;
         }
 
-        void flag(uint32_t row, uint32_t col) {
+        void flag(int row, int col) {
             if (!in_bounds(row, col)){
                 return;
             }

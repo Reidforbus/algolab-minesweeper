@@ -2,22 +2,13 @@
 #include "tui.hpp"
 #include "aicore.hpp"
 #include "utilities.hpp"
-#include <bits/types/error_t.h>
-#include <cstdint>
-#include <cstdio>
-#include <ios>
-#include <iostream>
-#include <ftxui/dom/elements.hpp>
-#include <ftxui/screen/screen.hpp>
 #include <limits>
-#include <stdexcept>
-#include <string>
 
 #define BOARD_HEIGHT 16
 #define BOARD_WIDTH 30
 #define NUMBER_OF_MINES 99
 
-void play_game(uint32_t board_height, uint32_t board_width, uint32_t mine_count, int seed, bool seeded){
+void play_game(int board_height, int board_width, int mine_count, uint32_t seed, bool seeded){
 
     algolab::Minegame game;
     game.new_game(board_height, board_width, mine_count, seed, seeded);
@@ -53,7 +44,7 @@ void play_game(uint32_t board_height, uint32_t board_width, uint32_t mine_count,
         } else {
 
             std::cerr << "AI couldn't make a move, can you help?" << std::endl;
-            uint32_t row, col;
+            int row, col;
             char command = 'x';
             while (true) {
                 std::cin >> command;

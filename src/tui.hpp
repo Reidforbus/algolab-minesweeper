@@ -1,4 +1,5 @@
-#include <cstdint>
+#pragma once
+
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/dom/node.hpp>
 #include <ftxui/screen/color.hpp>
@@ -10,8 +11,8 @@
 namespace algolab{
     class GameTUI {
         private:
-            uint32_t board_w;
-            uint32_t board_h;
+            int board_w;
+            int board_h;
             ftxui::Element document;
             ftxui::Element board_grid;
             std::vector<ftxui::Elements> board;
@@ -98,7 +99,7 @@ namespace algolab{
 
         public:
 
-            void new_game(uint32_t h, uint32_t w){
+            void new_game(int h, int w){
                 board_w = w;
                 board_h = h;
                 board.clear();
@@ -115,7 +116,7 @@ namespace algolab{
 
             }
 
-            void update_state(std::vector<uint32_t> state){
+            void update_state(std::vector<int> state){
                 for (auto j = 0;j < board_h; j++){
                     for (auto i = 0;i < board_w; i++){
                         auto val = state[(j * board_w) + i];

@@ -2,16 +2,13 @@
 
 #include "utilities.hpp"
 #include "csp.hpp"
-#include <cstdint>
-#include <cstdlib>
 #include <random>
-#include <vector>
 
 namespace algolab{
     class CSPAI{
         private:
-            uint32_t height, width, mine_count;
-            std::map<Coord, uint32_t> opened;
+            int height, width, mine_count;
+            std::map<Coord, int> opened;
             std::set<Coord> mines;
             std::set<Coord> unknown;
             std::vector<Coord> changed;
@@ -45,7 +42,7 @@ namespace algolab{
                     Coord open_sq = changed.back();
                     changed.pop_back();
 
-                    uint32_t value = opened[open_sq];
+                    int value = opened[open_sq];
                     csp.update_remaining_ones(mine_count - mines.size());
                     if (value != 0) {
 
@@ -95,7 +92,7 @@ namespace algolab{
                     std::mt19937 rng(rd());
                     uint32_t idx = distributor(rng);
                     auto iter = unknown.cbegin();
-                    for (uint32_t i = 0; i < idx; i++){
+                    for (int i = 0; i < idx; i++){
                         iter++;
                     }
                     to_open.push_back(*iter);
@@ -106,7 +103,7 @@ namespace algolab{
             }
 
         public:
-            CSPAI(uint32_t h, uint32_t w, uint32_t m):
+            CSPAI(int h, int w, int m):
                 height(h), width(w), mine_count(m){
                         for (auto j = 0;j < height; j++){
                             for (auto i = 0;i < width; i++){
@@ -116,7 +113,7 @@ namespace algolab{
                         }
                 }
 
-            void update_state(std::vector<uint32_t> state){
+            void update_state(std::vector<int> state){
                 for (auto j = 0;j < height; j++){
                     for (auto i = 0;i < width; i++){
                         Coord sq(j, i);

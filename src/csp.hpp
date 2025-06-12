@@ -251,7 +251,7 @@ namespace algolab {
                 for (Variable* v_ptr : cnstrnt.unknown){
                     for (Constraint* c_ptr : v_ptr->constraints){
                         Constraint& c = *c_ptr;
-                        if ((c.unknown.size() >= cnstrnt.unknown.size()) | c.obsolete()) continue;
+                        if ((c.unknown.size() >= cnstrnt.unknown.size()) || c.obsolete()) continue;
 
                         bool valid = true;
                         for (Variable* v2_ptr : c.unknown){
