@@ -3,6 +3,7 @@
 #include "utilities.hpp"
 #include <random>
 #include <set>
+#include <iostream>
 
 namespace algolab{
     class Minegame{
