@@ -9,3 +9,5 @@ _deps/
 compile_commands.json
 .cache
 Minesweeper
+tests
+!src/tests
