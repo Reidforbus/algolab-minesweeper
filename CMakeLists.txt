@@ -25,15 +25,9 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(ftxui)
 FetchContent_MakeAvailable(Catch2)
 
-add_executable(Minesweeper src/main.cpp)
+add_subdirectory(src)
 
-add_executable(tests src/tests/test.cpp)
-target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
+enable_testing()
+add_subdirectory(tests)
 
-target_include_directories(Minesweeper PRIVATE src)
-
-target_link_libraries(Minesweeper
-    PRIVATE ftxui::screen
-    PRIVATE ftxui::dom
-    PRIVATE ftxui::component
-)
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage -O0 -g")

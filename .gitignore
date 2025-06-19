@@ -9,5 +9,8 @@ _deps/
 compile_commands.json
 .cache
 Minesweeper
-tests
-!src/tests
+Testing
+build
+CTestTestfile.cmake
+DartConfiguration.tcl
+make.gcov.json.gz
