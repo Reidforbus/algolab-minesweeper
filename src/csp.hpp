@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <memory>
 #include <set>
-#include <tuple>
 #include <map>
 #include <vector>
 #include <iostream>
@@ -13,6 +12,7 @@ namespace algolab {
     const uint64_t ONE = 1;
 
     template <typename var_type> class CSPGraph{
+        friend class CSPGraphTest;
         struct Variable;
 
         struct Constraint {
@@ -53,7 +53,7 @@ namespace algolab {
 
         std::vector<Constraint*> update_stack;
 
-        std::vector<std::tuple<var_type, int>> solved;
+        std::vector<std::pair<var_type, int>> solved;
 
 
         int max_n = -1;
@@ -65,7 +65,7 @@ namespace algolab {
             }
 
             var.value = value;
-            solved.push_back(std::make_tuple(var.name, value));
+            solved.push_back(std::make_pair(var.name, value));
 
             auto cs = var.constraints;
             for (Constraint* ptr : cs){
@@ -146,7 +146,9 @@ namespace algolab {
                 if (comp_constraints[id].size() < 2) continue;
                 int n = comp_variables[id].size();
 
-                if (n > 64) continue;
+                if (n > 64) {
+                    continue;
+                }
 
                 std::vector<Constraint_Mask> masks;
                 for (Constraint* c_ptr : comp_constraints[id]){
@@ -383,10 +385,10 @@ namespace algolab {
             update_stack.push_back(new_cnstrnt);
         }
 
-        std::tuple<var_type, int> get_solution(){
+        std::pair<var_type, int> get_solution(){
             find_solutions();
             if (solved.empty()){
-                return std::make_tuple(var_type(), -1);
+                return std::make_pair(var_type(), -1);
             }
             auto result = solved.back();
             solved.pop_back();

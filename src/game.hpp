@@ -167,7 +167,6 @@ namespace algolab{
 
         bool open(int row, int col) {
             if (!in_bounds(row, col)) {
-                std::cout << "Was out of bounds" << std::endl;
                 return true;
             }
 

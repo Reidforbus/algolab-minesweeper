@@ -25,7 +25,6 @@ namespace algolab{
             bool check_end_game(){
                 if (!end_game){
                     if (unknown.size() < end_game_threshold){
-                        std::cerr << "Entering end game" << std::endl;
                         end_game = true;
                         std::vector<Coord> variables(unknown.begin(), unknown.end());
                         csp.add_constraint(variables, mine_count - mines.size());
