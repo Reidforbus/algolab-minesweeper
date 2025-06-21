@@ -3,4 +3,4 @@
 #include "test_game.hpp"
 #include "test_aicore.hpp"
 #include "test_csp.hpp"
-//#include "test_algorithm.hpp"
+#include "test_algorithm.hpp"

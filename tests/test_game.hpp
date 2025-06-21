@@ -3,9 +3,10 @@
 
 namespace algolab{
     class MinegameTest {
-        Minegame game;
+        Minegame& game;
 
         public:
+        MinegameTest(Minegame& g): game(g){}
 
         void test_in_bounds(){
             game.new_game(10, 10, 1, 0, true);
@@ -56,6 +57,14 @@ namespace algolab{
             }
         }
 
+        Coord get_last_move(){
+            return game.last_move;
+        }
+
+        auto get_square(int row, int col){
+            return game.board.at(row).at(col);
+        }
+
         uint32_t find_pattern_seed(std::string s){
             uint32_t test_seed = 0;
             int n = 0;
@@ -100,17 +109,20 @@ namespace algolab{
     }
 
     TEST_CASE("in_bounds works correctly", "[Game]"){
-        MinegameTest().test_in_bounds();
+        Minegame game;
+        MinegameTest(game).test_in_bounds();
     }
 
     TEST_CASE("Correct number of mines on board", "[Game]"){
-        MinegameTest().test_number_of_mines(1);
-        MinegameTest().test_number_of_mines(50);
-        MinegameTest().test_number_of_mines(99);
+        Minegame game;
+        MinegameTest(game).test_number_of_mines(1);
+        MinegameTest(game).test_number_of_mines(50);
+        MinegameTest(game).test_number_of_mines(99);
     }
 
     TEST_CASE("Seeded board generation works expectedly", "[Game]"){
-        MinegameTest gametester;
+        Minegame game;
+        MinegameTest gametester(game);
 
         gametester.check_generation(9, 1);
         gametester.check_generation(729, 2);
@@ -164,4 +176,82 @@ namespace algolab{
         REQUIRE(game.was_won());
     }
 
+    TEST_CASE("Game is over and not won when game has ceded", "[Game]"){
+        Minegame game;
+        game.new_game(5,5,5,0,false);
+        REQUIRE_FALSE(game.game_finished());
+        game.cede();
+        REQUIRE(game.game_finished());
+        REQUIRE_FALSE(game.was_won());
+    }
+
+    TEST_CASE("Opening is aborted if Coord is out of bounds", "[Game]"){
+        Minegame game;
+        MinegameTest tester(game);
+        game.new_game(5,5,6,30627,true);
+        game.open(4,4);
+        REQUIRE(tester.get_last_move() == Coord(4,4));
+        game.open(-1,-1);
+        REQUIRE(tester.get_last_move() == Coord(4,4));
+    }
+
+    TEST_CASE("Opening is aborted if Coord is already open", "[Game]"){
+        Minegame game;
+        MinegameTest tester(game);
+        game.new_game(5,5,6,30627,true);
+        game.open(4,4);
+        REQUIRE(tester.get_last_move() == Coord(4,4));
+        game.open(3,4);
+        REQUIRE(tester.get_last_move() == Coord(4,4));
+    }
+
+    TEST_CASE("Flagging outside bounds does nothing", "[Game]"){
+        Minegame game;
+        MinegameTest tester(game);
+        game.new_game(5,5,6,30627,true);
+        game.flag(-2,-2);
+        REQUIRE(tester.get_last_move() == Coord(-1,-1));
+    }
+
+    TEST_CASE("Flagging open square does nothing", "[Game]"){
+        Minegame game;
+        MinegameTest tester(game);
+        game.new_game(5,5,6,30627,true);
+        game.open(4,4);
+        REQUIRE(tester.get_last_move() == Coord(4,4));
+        game.flag(3,4);
+        REQUIRE(tester.get_last_move() == Coord(4,4));
+    }
+
+    TEST_CASE("Flagging square changes square state", "[Game]"){
+        Minegame game;
+        MinegameTest tester(game);
+        game.new_game(5,5,6,30627,true);
+        game.flag(4,4);
+        auto sq = tester.get_square(4, 4);
+        REQUIRE(sq.flagged);
+    }
+
+    TEST_CASE("Flagging flagged square removes flag", "[Game]"){
+        Minegame game;
+        MinegameTest tester(game);
+        game.new_game(5,5,6,30627,true);
+        game.flag(4,4);
+        game.flag(4,4);
+        auto sq = tester.get_square(4, 4);
+        REQUIRE_FALSE(sq.flagged);
+    }
+
+    TEST_CASE("State is returned correctly", "[Game]"){
+        Minegame game;
+        MinegameTest tester(game);
+        game.new_game(5,5,6,30627,true);
+        game.open(4,4);
+        game.flag(0,0);
+        std::vector<int> correct_values = {27, 10, 10, 2, 0, 10, 10, 10, 3, 0, 10, 10, 10, 3, 0, 10, 10, 10, 3, 0, 10, 10, 10, 2, 0};
+        REQUIRE(correct_values == game.get_state());
+        game.open(0,2);
+        correct_values = {9, 3, 25, 2, 0, 1, 4, 9, 3, 0, 0, 3, 9, 3, 0, 0, 3, 9, 3, 0, 0, 2, 9, 2, 0};
+        REQUIRE(correct_values == game.get_state());
+    }
 }

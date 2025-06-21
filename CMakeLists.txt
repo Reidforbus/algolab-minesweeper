@@ -41,7 +41,7 @@ add_custom_target(coverage
     COMMAND rm -fr coverage
     COMMAND mkdir coverage
     COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
-    COMMAND gcovr . --exclude '/usr/*' --exclude '.*catch2.*' --exclude '.*ftxui.*' --exclude 'src/main.cpp' --html --html-details -o coverage/coverage.html
+    COMMAND gcovr . --exclude '/usr/*' --exclude '.*catch2.*' --exclude '.*ftxui.*' --exclude 'src/main.cpp' --exclude 'tests/*' --exclude-throw-branches --exclude-unreachable-branches --html --html-details -o coverage/coverage.html
 
 )
 

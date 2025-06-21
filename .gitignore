@@ -21,3 +21,4 @@ make.gcov.json.gz
 *.o
 *.gcov
 coverage
+!include/minesweeper
