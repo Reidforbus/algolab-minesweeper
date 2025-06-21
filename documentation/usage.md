@@ -14,14 +14,14 @@ cmake .
 Tämä lataa ohjelman käyttämän ui-kirjaston ja luo Makefilen.
 
 ```bash
-make
+make -j
 ```
 
 Tämä kääntää lähdekoodin ohjelmaksi.
 
 ## Ohjelman ajaminen
 
-Ohjelmaa ajetaan terminaalissa komennolla ```./Minesweeper``` repositorion kansiossa.
+Ohjelmaa ajetaan terminaalissa komennolla ```./minesweeper``` repositorion kansiossa.
 
 Lisäämällä komennon perään lipun ```-s``` ja kokonaisluvun, voit antaa pelilaudan generoivalle algoritmille aloitussyötteen.
 
@@ -44,3 +44,11 @@ Mahdollisia toimintoja:
 - ```q```: Lopetta pelin
 
 Eli esimerkiksi komento: ```o 1 1``` avaa vasemman yläkulman ruudun.
+
+## Testien ajaminen
+
+Testit voi ajaa komennolla ```ctest```
+
+Testin kattavuusraporttia varten täytyy olla käytössä Clang tai GNU -kääntäjä sekä gcovr asennettuna. gcovr-ohjelman voi asentaa komennolla ```pip install gcovr```.
+
+Komennolla ```make coverage``` ohjelma ajaa testit ja generoi testien kattavuusraportin coverage-kansioon, ```coverage.html``` nimiseen tiedostoon.

@@ -1,4 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
+#include <sstream>
 #include "minesweeper/utilities.hpp"
 
 namespace algolab{
@@ -30,5 +31,12 @@ namespace algolab{
             sq += nbr;
         }
         REQUIRE(sq == Coord(0,0));
+    }
+
+    TEST_CASE("Printing works", "[Coord]"){
+        std::stringstream s;
+        Coord sq(3,7);
+        s << sq;
+        REQUIRE(s.str() == "(3, 7)");
     }
 }

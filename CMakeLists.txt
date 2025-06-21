@@ -7,6 +7,7 @@ include(FetchContent)
 set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 set(FETCHCONTENT_QUIET OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_BUILD_TYPE Debug)
 
 FetchContent_Declare(ftxui
     GIT_REPOSITORY https://github.com/arthursonzogni/ftxui.git
@@ -25,7 +26,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(ftxui)
 FetchContent_MakeAvailable(Catch2)
 
-option(ENABLE_COVERAGE "Enable coverage reporting" OFF)
+option(ENABLE_COVERAGE "Enable coverage reporting" ON)
 
 if(ENABLE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     message(STATUS "Building with coverage flags")
@@ -40,7 +41,7 @@ add_custom_target(coverage
     COMMAND rm -fr coverage
     COMMAND mkdir coverage
     COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
-    COMMAND gcovr . --exclude '/usr/*' --exclude '.*catch2.*' --exclude '.*ftxui.*' --html --html-details -o coverage/coverage.html
+    COMMAND gcovr . --exclude '/usr/*' --exclude '.*catch2.*' --exclude '.*ftxui.*' --exclude 'src/main.cpp' --html --html-details -o coverage/coverage.html
 
 )
 
