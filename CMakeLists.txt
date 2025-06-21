@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(Minesweeper)
+project(minesweeper)
 
 include(FetchContent)
 
@@ -25,9 +25,34 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(ftxui)
 FetchContent_MakeAvailable(Catch2)
 
-add_subdirectory(src)
+option(ENABLE_COVERAGE "Enable coverage reporting" OFF)
+
+if(ENABLE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    message(STATUS "Building with coverage flags")
+    add_compile_options(--coverage -O0 -g -fprofile-arcs -ftest-coverage)
+    add_link_options(--coverage)
+endif()
+
+
+add_custom_target(coverage
+    COMMAND ${CMAKE_COMMAND} -E echo "Generating coverage"
+    COMMAND find . -name '*.gcda' -delete
+    COMMAND rm -fr coverage
+    COMMAND mkdir coverage
+    COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
+    COMMAND gcovr . --exclude '/usr/*' --exclude '.*catch2.*' --exclude '.*ftxui.*' --html --html-details -o coverage/coverage.html
+
+)
+
+add_executable(minesweeper src/main.cpp)
+
+target_include_directories(minesweeper PUBLIC ${CMAKE_SOURCE_DIR}/include)
+
+target_link_libraries(minesweeper
+    PRIVATE ftxui::screen
+    PRIVATE ftxui::dom
+    PRIVATE ftxui::component
+)
 
 enable_testing()
 add_subdirectory(tests)
-
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage -O0 -g")

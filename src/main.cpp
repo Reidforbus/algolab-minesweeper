@@ -1,8 +1,7 @@
-#include "game.hpp"
-#include "tui.hpp"
-#include "aicore.hpp"
-#include "utilities.hpp"
-#include <limits>
+#include "minesweeper/game.hpp"
+#include "minesweeper/tui.hpp"
+#include "minesweeper/aicore.hpp"
+#include "minesweeper/utilities.hpp"
 
 #define BOARD_HEIGHT 16
 #define BOARD_WIDTH 30

@@ -26,7 +26,7 @@ Ohjelmaa ajetaan terminaalissa komennolla ```./Minesweeper``` repositorion kansi
 Lisäämällä komennon perään lipun ```-s``` ja kokonaisluvun, voit antaa pelilaudan generoivalle algoritmille aloitussyötteen.
 
 ```bash
-./Minesweeper -s 1329813523
+./minesweeper -s 1329813523
 ```
 
 Ilman tätä pelilauta generoidaan satunnaisesti.

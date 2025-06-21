@@ -1,5 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include "../src/utilities.hpp"
+#include "minesweeper/utilities.hpp"
 
 namespace algolab{
     TEST_CASE( "Coord comparisons work correctly", "[Coord]" ) {

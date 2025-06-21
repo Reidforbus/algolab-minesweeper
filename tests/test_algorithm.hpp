@@ -4,8 +4,8 @@
 #include <mutex>
 #include <queue>
 #include <vector>
-#include "../src/game.hpp"
-#include "../src/aicore.hpp"
+#include "minesweeper/game.hpp"
+#include "minesweeper/aicore.hpp"
 
 template<typename T>
 class BenchmarkQueue {
