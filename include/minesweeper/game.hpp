@@ -216,6 +216,20 @@ namespace algolab{
             slot->flagged = !slot->flagged;
         }
 
+        bool execute_move(algolab::Move move){
+            if (move.action == FAIL){
+                return false;
+            }
+            if (move.action == OPEN){
+                open(move.coord.row, move.coord.col);
+                return true;
+            } else if (move.action == FLAG){
+                flag(move.coord.row, move.coord.col);
+                return true;
+            }
+            return false;
+        }
+
         void print_state() {
             for (auto i : board) {
                 for (Square j : i) {

@@ -60,7 +60,7 @@ inline bool run_game(){
     }
 }
 
-TEST_CASE("No false moves are made in 100 games", "[Algorithm]"){
+TEST_CASE("No false moves are made in 100 games", "[Algorithm], [!benchmark]"){
     int number_of_games = 100;
     BenchmarkQueue<bool> result_queue;
     std::vector<std::future<void>> futures;

@@ -16,6 +16,7 @@ namespace algolab{
             ftxui::Element document;
             ftxui::Element board_grid;
             std::vector<ftxui::Elements> board;
+            std::vector<ftxui::Element> messages;
 
             void build_doc(){
                 std::vector<ftxui::Element> grid_vector;
@@ -39,8 +40,10 @@ namespace algolab{
                 }
                 board_grid = ftxui::vbox(grid_vector) | ftxui::flex_grow;
 
+
                 document = ftxui::hbox({
                         board_grid | ftxui::borderDouble | ftxui::center,
+                        ftxui::vbox(messages),
                         }) | ftxui::center;
             }
 
@@ -103,6 +106,7 @@ namespace algolab{
                 board_w = w;
                 board_h = h;
                 board.clear();
+                messages.clear();
 
 
                 for (int j = 0; j < h; j++) {
@@ -114,6 +118,14 @@ namespace algolab{
                     board.push_back(row);
                 }
 
+            }
+
+            void add_message(std::string s){
+                messages.push_back(ftxui::text(s));
+            }
+
+            void clear_messages(){
+                messages.clear();
             }
 
             void update_state(std::vector<int> state){

@@ -41,13 +41,15 @@ add_custom_target(coverage
     COMMAND rm -fr coverage
     COMMAND mkdir coverage
     COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
-    COMMAND gcovr . --exclude '/usr/*' --exclude '.*catch2.*' --exclude '.*ftxui.*' --exclude 'src/main.cpp' --exclude 'tests/*' --exclude-throw-branches --exclude-unreachable-branches --html --html-details -o coverage/coverage.html
+    COMMAND gcovr . --exclude '/usr/*' --exclude '.*catch2.*' --exclude '.*ftxui.*' --exclude 'src/*.cpp' --exclude 'tests/*' --exclude-throw-branches --exclude-unreachable-branches --html --html-details -o coverage/coverage.html
 
 )
 
 add_executable(minesweeper src/main.cpp)
+add_executable(demo src/demo.cpp)
 
 target_include_directories(minesweeper PUBLIC ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(demo PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
 target_link_libraries(minesweeper
     PRIVATE ftxui::screen
@@ -55,5 +57,10 @@ target_link_libraries(minesweeper
     PRIVATE ftxui::component
 )
 
+target_link_libraries(demo
+    PRIVATE ftxui::screen
+    PRIVATE ftxui::dom
+    PRIVATE ftxui::component
+)
 enable_testing()
 add_subdirectory(tests)
