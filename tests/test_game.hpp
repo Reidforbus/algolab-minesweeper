@@ -1,5 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include "minesweeper/game.hpp"
+#include <iostream>
 
 namespace algolab{
     class MinegameTest {

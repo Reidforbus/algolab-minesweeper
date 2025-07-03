@@ -1,7 +1,8 @@
 add_executable(tests test.cpp)
 
-target_include_directories(tests PUBLIC ${CMAKE_SOURCE_DIR}/include)
-target_link_libraries(tests PRIVATE Catch2::Catch2WithMain )
+target_link_libraries(tests 
+    PRIVATE tools
+    PRIVATE Catch2::Catch2WithMain )
 
 include(CTest)
 include(Catch)

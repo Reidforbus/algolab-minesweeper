@@ -8,7 +8,6 @@
 #include <iostream>
 
 namespace algolab {
-
     const uint64_t ONE = 1;
 
     template <typename var_type> class CSPGraph{
@@ -83,26 +82,26 @@ namespace algolab {
         }
 
         void component_scan(Constraint& c, std::map<Constraint*, int>& components, int id, std::vector<Constraint*>& c_vec, std::vector<Variable*>& v_vec){
-                if (components.count(&c)){
-                    return;
-                }
-                components[&c] = id;
-                c_vec.push_back(&c);
+            if (components.count(&c)){
+                return;
+            }
+            components[&c] = id;
+            c_vec.push_back(&c);
 
-                for (Variable* v_ptr : c.unknown){
-                    bool found = false;
-                    for (Variable* v2_ptr : v_vec){
-                        if (v2_ptr == v_ptr){
-                            found = true;
-                        }
-                    }
-                    if (!found){
-                        v_vec.push_back(v_ptr);
-                    }
-                    for (Constraint* next_c_ptr : v_ptr->constraints){
-                        component_scan(*next_c_ptr, components, id, c_vec, v_vec);
+            for (Variable* v_ptr : c.unknown){
+                bool found = false;
+                for (Variable* v2_ptr : v_vec){
+                    if (v2_ptr == v_ptr){
+                        found = true;
                     }
                 }
+                if (!found){
+                    v_vec.push_back(v_ptr);
+                }
+                for (Constraint* next_c_ptr : v_ptr->constraints){
+                    component_scan(*next_c_ptr, components, id, c_vec, v_vec);
+                }
+            }
         }
 
         void search_recursively(uint64_t partial_solution, int depth, int n, std::vector<uint64_t>& solution_vec, std::vector<Constraint_Mask>& masks){
@@ -208,48 +207,48 @@ namespace algolab {
         }
 
         inline bool trivial_all_zeroes(Constraint& c){
-                if (c.sum == 0){
-                    auto vars = c.unknown;
-                    for (Variable* ptr : vars){
-                        Variable& var = *ptr;
-                        solve_variable(var, 0);
-                    }
-                    return true;
-                } 
-                return false;
+            if (c.sum == 0){
+                auto vars = c.unknown;
+                for (Variable* ptr : vars){
+                    Variable& var = *ptr;
+                    solve_variable(var, 0);
+                }
+                return true;
+            } 
+            return false;
         }
 
         inline bool trivial_all_ones(Constraint& c){
-                if (c.unknown.size() == c.sum){
-                    auto vars = c.unknown;
-                    for (Variable* ptr : vars){
-                        Variable& var = *ptr;
-                        solve_variable(var, 1);
-                    }
-                    return true;
-                } 
-                return false;
+            if (c.unknown.size() == c.sum){
+                auto vars = c.unknown;
+                for (Variable* ptr : vars){
+                    Variable& var = *ptr;
+                    solve_variable(var, 1);
+                }
+                return true;
+            } 
+            return false;
         }
 
         inline Constraint* find_subset(Constraint& cnstrnt){
-                for (Variable* v_ptr : cnstrnt.unknown){
-                    for (Constraint* c_ptr : v_ptr->constraints){
-                        Constraint& c = *c_ptr;
-                        if ((c.unknown.size() >= cnstrnt.unknown.size()) || c.obsolete()) continue;
+            for (Variable* v_ptr : cnstrnt.unknown){
+                for (Constraint* c_ptr : v_ptr->constraints){
+                    Constraint& c = *c_ptr;
+                    if ((c.unknown.size() >= cnstrnt.unknown.size()) || c.obsolete()) continue;
 
-                        bool valid = true;
-                        for (Variable* v2_ptr : c.unknown){
-                            if (cnstrnt.unknown.count(v2_ptr) == 0){
-                                valid = false;
-                                break;
-                            }
-                        }
-                        if (valid){
-                            return &c;
+                    bool valid = true;
+                    for (Variable* v2_ptr : c.unknown){
+                        if (cnstrnt.unknown.count(v2_ptr) == 0){
+                            valid = false;
+                            break;
                         }
                     }
+                    if (valid){
+                        return &c;
+                    }
                 }
-                return nullptr;
+            }
+            return nullptr;
         }
 
         inline void reduce_with_subset(Constraint& cnstrnt, Constraint& subset){

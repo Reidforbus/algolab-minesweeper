@@ -18,9 +18,9 @@ FetchContent_Declare(ftxui
 )
 
 FetchContent_Declare(
-  Catch2
-  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-  GIT_TAG        v3.4.0
+    Catch2
+    GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+    GIT_TAG        v3.4.0
 )
 
 FetchContent_MakeAvailable(ftxui)
@@ -42,25 +42,23 @@ add_custom_target(coverage
     COMMAND mkdir coverage
     COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
     COMMAND gcovr . --exclude '/usr/*' --exclude '.*catch2.*' --exclude '.*ftxui.*' --exclude 'src/*.cpp' --exclude 'tests/*' --exclude-throw-branches --exclude-unreachable-branches --html --html-details -o coverage/coverage.html
+)
 
+add_library(tools STATIC src/minesweeper/aicore.cpp src/minesweeper/tui.cpp src/minesweeper/game.cpp)
+
+target_include_directories(tools PUBLIC include)
+
+target_link_libraries(tools
+    PUBLIC ftxui::screen
+    PUBLIC ftxui::dom
+    PUBLIC ftxui::component
 )
 
 add_executable(minesweeper src/main.cpp)
+target_link_libraries(minesweeper PRIVATE tools)
 add_executable(demo src/demo.cpp)
+target_link_libraries(demo PRIVATE tools)
 
-target_include_directories(minesweeper PUBLIC ${CMAKE_SOURCE_DIR}/include)
-target_include_directories(demo PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
-target_link_libraries(minesweeper
-    PRIVATE ftxui::screen
-    PRIVATE ftxui::dom
-    PRIVATE ftxui::component
-)
-
-target_link_libraries(demo
-    PRIVATE ftxui::screen
-    PRIVATE ftxui::dom
-    PRIVATE ftxui::component
-)
 enable_testing()
 add_subdirectory(tests)

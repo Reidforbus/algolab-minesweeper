@@ -2,6 +2,7 @@
 #include "minesweeper/tui.hpp"
 #include "minesweeper/aicore.hpp"
 #include "minesweeper/utilities.hpp"
+#include <limits>
 
 #define BOARD_HEIGHT 16
 #define BOARD_WIDTH 30
