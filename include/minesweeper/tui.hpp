@@ -6,6 +6,7 @@
 #include <ftxui/screen/screen.hpp>
 #include <string>
 #include <vector>
+#include <iostream>
 
 
 namespace algolab{
@@ -17,6 +18,10 @@ namespace algolab{
             ftxui::Element board_grid;
             std::vector<ftxui::Elements> board;
             std::vector<ftxui::Element> messages;
+            ftxui::Screen screen = ftxui::Screen::Create(
+                        ftxui::Dimension::Full(),
+                        ftxui::Dimension::Full()
+                        );
 
             void build_doc(){
                 std::vector<ftxui::Element> grid_vector;
@@ -43,14 +48,14 @@ namespace algolab{
 
                 document = ftxui::hbox({
                         board_grid | ftxui::borderDouble | ftxui::center,
-                        ftxui::vbox(messages),
+                        ftxui::vbox(messages) | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 20),
                         }) | ftxui::center;
             }
 
             auto square(std::string s, bool open, bool latest){
                 ftxui::Color number_color;
                 ftxui::BorderStyle border;
-                ftxui::Color border_color;
+                ftxui::Color border_color = ftxui::Color::White;
 
 
 
@@ -151,13 +156,9 @@ namespace algolab{
 
             void draw(){
                 build_doc();
-                auto screen = ftxui::Screen::Create(
-                        ftxui::Dimension::Fit(document, true),
-                        ftxui::Dimension::Fit(document, true)
-                        );
 
                 ftxui::Render(screen, document);
-                screen.Print();
+                std::cout << screen.ToString() << std::flush;
             }
     };
 } //namespace algolab
