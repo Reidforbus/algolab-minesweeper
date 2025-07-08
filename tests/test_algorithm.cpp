@@ -1,4 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/benchmark/catch_benchmark.hpp>
 #include <condition_variable>
 #include <future>
 #include <mutex>
@@ -29,11 +30,8 @@ class BenchmarkQueue {
     }
 };
 
-inline bool run_game(){
+inline bool run_game(int h = 16, int w = 30, int m = 99){
     algolab::Minegame game;
-    int h = 16;
-    int w = 30;
-    int m = 99;
     game.new_game(h, w, m, 0, false);
 
     algolab::CSPAI ai(h, w, m);
@@ -60,7 +58,17 @@ inline bool run_game(){
     }
 }
 
-TEST_CASE("No false moves are made in 100 games", "[Algorithm], [!benchmark]"){
+TEST_CASE("Testing ai speed", "[Algorithm] [!benchmark]"){
+    BENCHMARK("Easy game"){
+        return run_game(9,9,10);
+    };
+
+    BENCHMARK("Intermediate game"){
+        return run_game(16,16,40);
+    };
+}
+
+TEST_CASE("No false moves are made in 100 games", "[Algorithm][!benchmark]"){
     int number_of_games = 100;
     BenchmarkQueue<bool> result_queue;
     std::vector<std::future<void>> futures;
