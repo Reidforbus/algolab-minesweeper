@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include "minesweeper/game.hpp"
-#include <iostream>
+#include "minesweeper/utilities.hpp"
+#include <sstream>
 
 namespace algolab{
     class MinegameTest {
@@ -119,6 +120,12 @@ namespace algolab{
         MinegameTest(game).test_number_of_mines(1);
         MinegameTest(game).test_number_of_mines(50);
         MinegameTest(game).test_number_of_mines(99);
+    }
+
+    TEST_CASE("Seed is returned correctly", "[Game]"){
+        Minegame game;
+        game.new_game(10, 10, 50, 1234, true);
+        REQUIRE(game.get_seed() == 1234);
     }
 
     TEST_CASE("Seeded board generation works expectedly", "[Game]"){
@@ -245,7 +252,6 @@ namespace algolab{
 
     TEST_CASE("State is returned correctly", "[Game]"){
         Minegame game;
-        MinegameTest tester(game);
         game.new_game(5,5,6,30627,true);
         game.open(4,4);
         game.flag(0,0);
@@ -254,5 +260,44 @@ namespace algolab{
         game.open(0,2);
         correct_values = {9, 3, 25, 2, 0, 1, 4, 9, 3, 0, 0, 3, 9, 3, 0, 0, 3, 9, 3, 0, 0, 2, 9, 2, 0};
         REQUIRE(correct_values == game.get_state());
+    }
+
+    TEST_CASE("FAIL Move is not executed", "[Game]"){
+        Minegame game;
+        game.new_game(5,5,6,30627,true);
+        REQUIRE_FALSE(game.execute_move(Move{{0,0}, FAIL, false}));
+    }
+
+    TEST_CASE("OPEN Move causes opening", "[Game]"){
+        Minegame game;
+        game.new_game(5,5,6,30627,true);
+        game.open(4,4);
+        auto state1 = game.get_state();
+        game.new_game(5,5,6,30627,true);
+        game.execute_move({{4,4}, OPEN, false});
+        auto state2 = game.get_state();
+
+        REQUIRE(state1 == state2);
+    }
+
+    TEST_CASE("FLAG Move causes flagging", "[Game]"){
+        Minegame game;
+        MinegameTest tester(game);
+        game.new_game(5,5,6,30627,true);
+        game.execute_move({{4,4}, FLAG, false});
+        auto sq = tester.get_square(4, 4);
+        REQUIRE(sq.flagged);
+    }
+
+    TEST_CASE("State is printed correctly", "[Game]"){
+        Minegame game;
+        game.new_game(5,5,6,30627,true);
+        game.open(4,4);
+        game.flag(0,0);
+        std::string correct = "@ 3 @ 2 0 \n1 4 @ 3 0 \n0 3 @ 3 0 \n0 3 @ 3 0 \n0 2 @ 2 0 \n";
+        std::stringstream buff;
+        game.print_state(buff);
+        std::string result = buff.str();
+        REQUIRE(result == correct);
     }
 }

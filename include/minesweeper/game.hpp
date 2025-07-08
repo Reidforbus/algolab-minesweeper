@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utilities.hpp"
+#include <iostream>
 
 namespace algolab{
     class Minegame{
@@ -39,10 +40,10 @@ namespace algolab{
         uint32_t get_seed();
 
         void new_game(int h, int w, int m, uint32_t new_seed, bool seeded);
-        void open(int row, int col) ;
-        void flag(int row, int col) ;
+        void open(int row, int col);
+        void flag(int row, int col);
         bool execute_move(algolab::Move move);
-        std::vector<int> get_state() ;
-        void print_state() ;
+        std::vector<int> get_state();
+        void print_state(std::ostream& output = std::cout);
     };
 } //namespace algolab

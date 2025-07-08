@@ -211,17 +211,17 @@ namespace algolab{
         return false;
     }
 
-    void Minegame::print_state() {
+    void Minegame::print_state(std::ostream& output) {
         for (auto i : board) {
             for (Square j : i) {
                 if (j.mine) {
-                    std::cout << "@";
+                    output << "@";
                 } else {
-                    std::cout << j.adjacent_mines;
+                    output << j.adjacent_mines;
                 }
-                std::cout << " ";
+                output << " ";
             }
-            std::cout << std::endl;
+            output << std::endl;
         }
     }
 }
