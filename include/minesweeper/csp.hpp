@@ -104,8 +104,8 @@ namespace algolab {
             }
         }
 
-        void search_recursively(uint64_t partial_solution, int depth, int n, std::vector<uint64_t>& solution_vec, std::vector<Constraint_Mask>& masks){
-            if (depth == n){
+        void search_recursively(uint64_t partial_solution, int depth, std::vector<uint64_t>& solution_vec, std::vector<Constraint_Mask>& masks){
+            if (depth == -1){
                 for (Constraint_Mask mask : masks){
                     if (std::__popcount(partial_solution & mask.mask) != mask.sum) return;
                 }
@@ -118,8 +118,8 @@ namespace algolab {
             }
 
 
-            search_recursively(partial_solution + (ONE << depth), depth + 1, n, solution_vec, masks);
-            search_recursively(partial_solution, depth + 1, n, solution_vec, masks);
+            search_recursively(partial_solution + (ONE << depth), depth - 1, solution_vec, masks);
+            search_recursively(partial_solution, depth - 1, solution_vec, masks);
         }
 
         bool divide_and_search(){
@@ -161,7 +161,7 @@ namespace algolab {
                 }
 
                 std::vector<uint64_t> solutions;
-                search_recursively(0, 0, n, solutions, masks);
+                search_recursively(0, n - 1, solutions, masks);
 
                 if (solutions.empty()) continue;
 
@@ -189,7 +189,7 @@ namespace algolab {
                     }
                 }
 
-                if (ones != 0){
+                if (zeroes != 0){
                     for (int i = 0; i < n; i++){
                         if (zeroes & (ONE << i)){
                             Variable& var = *comp_variables[id][i];
@@ -206,7 +206,7 @@ namespace algolab {
             return found_solutions;
         }
 
-        inline bool trivial_all_zeroes(Constraint& c){
+        bool trivial_all_zeroes(Constraint& c){
             if (c.sum == 0){
                 auto vars = c.unknown;
                 for (Variable* ptr : vars){
@@ -218,7 +218,7 @@ namespace algolab {
             return false;
         }
 
-        inline bool trivial_all_ones(Constraint& c){
+        bool trivial_all_ones(Constraint& c){
             if (c.unknown.size() == c.sum){
                 auto vars = c.unknown;
                 for (Variable* ptr : vars){
@@ -230,11 +230,11 @@ namespace algolab {
             return false;
         }
 
-        inline Constraint* find_subset(Constraint& cnstrnt){
+        Constraint* find_subset(Constraint& cnstrnt){
             for (Variable* v_ptr : cnstrnt.unknown){
                 for (Constraint* c_ptr : v_ptr->constraints){
                     Constraint& c = *c_ptr;
-                    if ((c.unknown.size() >= cnstrnt.unknown.size()) || c.obsolete()) continue;
+                    if ((c.unknown.size() >= cnstrnt.unknown.size())) continue;
 
                     bool valid = true;
                     for (Variable* v2_ptr : c.unknown){
@@ -251,7 +251,7 @@ namespace algolab {
             return nullptr;
         }
 
-        inline void reduce_with_subset(Constraint& cnstrnt, Constraint& subset){
+        void reduce_with_subset(Constraint& cnstrnt, Constraint& subset){
             cnstrnt.sum -= subset.sum;
 
             for (Variable* v_ptr : subset.unknown){
@@ -263,7 +263,7 @@ namespace algolab {
             }
         }
 
-        inline void find_supersets(Constraint& cnstrnt, std::set<Constraint*>& supersets){
+        void find_supersets(Constraint& cnstrnt, std::set<Constraint*>& supersets){
             // Initially all constraints that share the first variable
             // and are larger are added to the set
             auto vars = cnstrnt.unknown.cbegin();
@@ -289,7 +289,7 @@ namespace algolab {
             }
         }
 
-        inline void reduce_supersets(Constraint& cnstrnt, std::set<Constraint*>& supersets){
+        void reduce_supersets(Constraint& cnstrnt, std::set<Constraint*>& supersets){
             for (Constraint* c_ptr : supersets){
                 Constraint& c = *c_ptr;
 
@@ -376,7 +376,6 @@ namespace algolab {
             }
             Variable& var = variables[var_name];
             solve_variable(var, 0);
-            find_solutions();
         }
 
         void add_constraint(std::vector<var_type> vars, int sum){
