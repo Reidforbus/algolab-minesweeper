@@ -45,14 +45,18 @@ namespace algolab{
     }
 
     enum Move_action {
+        FAIL,
         OPEN,
         FLAG,
-        FAIL
     };
 
     struct Move {
         Coord coord;
         Move_action action; 
         bool guess;
+
+        bool operator==(const Move& a) const{
+            return (coord == a.coord) && (action == a.action) && (guess == a.guess);
+        }
     };
 }
