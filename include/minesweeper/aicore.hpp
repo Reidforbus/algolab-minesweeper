@@ -6,6 +6,7 @@
 
 namespace algolab{
     class CSPAI{
+        friend class CSPAITest;
         int height, width, mine_count;
         std::map<Coord, int> opened;
         std::set<Coord> mines;
@@ -14,12 +15,8 @@ namespace algolab{
         std::queue<Coord> to_open;
         std::queue<Coord> to_flag;
         CSPGraph<Coord> csp;
-        int end_game_threshold;
-        bool end_game;
 
         bool in_bounds(const Coord& sq);
-
-        bool check_end_game();
 
         bool calculate_moves();
 

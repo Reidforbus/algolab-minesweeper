@@ -6,20 +6,8 @@ namespace algolab{
                 return (sq.row >= 0) && (sq.row < height) && (sq.col >= 0) && (sq.col < width);
             }
 
-            bool CSPAI::check_end_game(){
-                if (!end_game){
-                    if (unknown.size() < end_game_threshold){
-                        end_game = true;
-                        std::vector<Coord> variables(unknown.begin(), unknown.end());
-                        csp.add_constraint(variables, mine_count - mines.size());
-                        return true;
-                    }
-                }
-                return false;
-            }
-
             bool CSPAI::calculate_moves(){
-                bool progressed = check_end_game();
+                bool progressed = false;
 
                 while (!changed.empty()){
                     Coord open_sq = changed.back();
@@ -61,7 +49,7 @@ namespace algolab{
             }
 
             bool CSPAI::make_guess(){
-                const Coord corners[] = {{0, 0}, {0, int(width) - 1}, {int(height) - 1, 0}, {int(height) - 1, int(width) - 1}};
+                const Coord corners[] = {{0, 0}, {0, width - 1}, {height - 1, 0}, {height - 1, width - 1}};
                 for (Coord sq : corners){
                     if (unknown.count(sq)){
                         to_open.push(sq);
@@ -87,8 +75,6 @@ namespace algolab{
 
             CSPAI::CSPAI(int h, int w, int m):
                 height(h), width(w), mine_count(m){
-                    end_game_threshold = 16;
-                    end_game = false;
                     for (auto j = 0;j < height; j++){
                         for (auto i = 0;i < width; i++){
                             Coord sq(j, i);
