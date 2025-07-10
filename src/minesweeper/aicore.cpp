@@ -14,7 +14,14 @@ namespace algolab{
                     changed.pop_back();
 
                     int value = opened[open_sq];
-                    csp.update_remaining_ones(mine_count - mines.size());
+                    int remaining_mines = mine_count - mines.size();
+                    csp.update_remaining_ones(remaining_mines);
+                    if (remaining_mines == 0){
+                        for (auto sq : unknown){
+                            to_open.push(sq);
+                        }
+                        return true;
+                    }
                     if (value != 0) {
 
                         std::vector<Coord> nbrs = open_sq.neighbours();
