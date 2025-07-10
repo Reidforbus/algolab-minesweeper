@@ -219,7 +219,7 @@ TEST_CASE("'No guesses' game 6", "[Validation]"){
     REQUIRE(no_guesses_and_won(20, 30, 130, game));
 }
 
-TEST_CASE("No false moves are made in 100 games", "[Validation][!benchmark]"){
+TEST_CASE("No false moves are made in 100 games", "[Validation]"){
     int number_of_games = 100;
     BenchmarkQueue<bool> result_queue;
     std::vector<std::future<void>> futures;

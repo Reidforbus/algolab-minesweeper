@@ -41,7 +41,7 @@ add_custom_target(coverage
     COMMAND rm -fr coverage
     COMMAND mkdir coverage
     COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
-    COMMAND gcovr . --exclude '/usr/*' --exclude '.*catch2.*' --exclude '.*ftxui.*' --exclude 'src/main.cpp' --exclude 'src/demo.cpp' --exclude 'tests/*' --exclude-throw-branches --exclude-unreachable-branches --html --html-details -o coverage/coverage.html
+    COMMAND gcovr . --exclude '/usr/*' --exclude '.*catch2.*' --exclude '.*ftxui.*' --exclude 'src/main.cpp' --exclude 'src/demo.cpp' --exclude 'tests/*' --exclude 'src/minesweeper/tui.cpp' --exclude-throw-branches --exclude-unreachable-branches --html --html-details -o coverage/coverage.html
 )
 
 add_library(tools STATIC src/minesweeper/aicore.cpp src/minesweeper/tui.cpp src/minesweeper/game.cpp)
