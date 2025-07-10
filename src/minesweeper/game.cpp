@@ -75,6 +75,33 @@ namespace algolab{
         }
     }
 
+    void Minegame::fill_board(std::vector<bool> mines){
+        board = std::vector<std::vector<Square>>(height, std::vector<Square>(width));
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                Square& sq = board[y][x];
+                sq.coord = {y, x};
+                sq.mine = mines[(y*width) + x];
+            }
+        }
+        fill_numbers();
+    }
+
+    void Minegame::fill_numbers(){
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                Square& sq = board[y][x];
+                if (sq.mine) {
+                    for (auto nbr : sq.coord.neighbours()) {
+                        if (in_bounds(nbr.row, nbr.col)){
+                            board[nbr.row][nbr.col].adjacent_mines++;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     bool Minegame::game_finished(){
         return game_over;
@@ -90,6 +117,51 @@ namespace algolab{
 
     uint32_t Minegame::get_seed(){
         return seed;
+    }
+
+    void Minegame::from_string(int h, int w, std::string input){
+        height = h;
+        width = w;
+        int m = 0;
+        std::vector<bool> minevector(height*width);
+        for (int i = 0; i < input.length(); i++){
+            if (input[i] == '*'){
+                m++;
+                minevector[i] = true;
+            }
+        }
+
+        if (h <= 0 || w <= 0 || m <= 0 || m >= (h * w) || input.length() != (h*w)){
+            throw std::invalid_argument("Parameters were invalid");
+        }
+        mine_count = m;
+        game_over = false;
+        winner = false;
+        board.clear();
+        seed = 0;
+
+        fill_board(minevector);
+    }
+
+    void Minegame::from_coords(int h, int w, std::vector<Coord> mines){
+        height = h;
+        width = w;
+        mine_count = mines.size();
+        if (h <= 0 || w <= 0 || mine_count <= 0 || mine_count >= (h * w)){
+            throw std::invalid_argument("Parameters were invalid");
+        }
+        game_over = false;
+        winner = false;
+        board.clear();
+        seed = 0;
+
+        std::vector<bool> minevector(height*width);
+
+        for (auto mine : mines){
+            minevector[mine.row * width + mine.col] = true;
+        }
+
+        fill_board(minevector);
     }
 
     void Minegame::new_game(int h, int w, int m, uint32_t new_seed, bool seeded){
@@ -120,30 +192,8 @@ namespace algolab{
             }
         }
 
-        for (int y = 0; y < height; y++) {
-            std::vector<Square> row;
+        fill_board(mines);
 
-            for (int x = 0; x < width; x++) {
-                Square next;
-                next.coord = {y, x};
-                next.mine = mines[(y*width) + x];
-                row.push_back(next);
-            }
-            board.push_back(row);
-        }
-
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                Square* sq = &board[y][x];
-                if (sq->mine) {
-                    for (auto nbr : sq->coord.neighbours()) {
-                        if (in_bounds(nbr.row, nbr.col)){
-                            board[nbr.row][nbr.col].adjacent_mines++;
-                        }
-                    }
-                }
-            }
-        }
     }
 
     void Minegame::open(int row, int col) {

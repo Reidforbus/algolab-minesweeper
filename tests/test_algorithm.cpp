@@ -30,7 +30,7 @@ class BenchmarkQueue {
     }
 };
 
-inline bool run_game(int h = 16, int w = 30, int m = 99){
+bool run_game(int h = 16, int w = 30, int m = 99){
     algolab::Minegame game;
     game.new_game(h, w, m, 0, false);
 
@@ -58,17 +58,168 @@ inline bool run_game(int h = 16, int w = 30, int m = 99){
     }
 }
 
-TEST_CASE("Testing ai speed", "[Algorithm] [!benchmark]"){
-    BENCHMARK("Easy game"){
-        return run_game(9,9,10);
-    };
+bool no_guesses_and_won(int h, int w, int m, algolab::Minegame& game){
 
-    BENCHMARK("Intermediate game"){
-        return run_game(16,16,40);
-    };
+    algolab::CSPAI ai(h, w, m);
+    algolab::Move last_move;
+
+    while (!game.game_finished()){
+        auto state = game.get_state();
+        ai.update_state(state);
+
+        last_move = ai.get_next_move();
+        if (last_move.guess) return false;
+        if (!game.execute_move(last_move)){
+            FAIL();
+        }
+    }
+    return game.was_won();
 }
 
-TEST_CASE("No false moves are made in 100 games", "[Algorithm][!benchmark]"){
+
+TEST_CASE("'No guesses' game 1", "[Validation]"){
+    algolab::Minegame game;
+    game.from_string(16, 16, 
+            "#*####**##*#####"
+            "*#*##*#####*####"
+            "*#####*#*#####*#"
+            "####*###########"
+            "#####*#*########"
+            "#*###***####*###"
+            "#**##*##*#*#####"
+            "#**#####**##***#"
+            "######*#########"
+            "#########*###*##"
+            "###**##*###**#*#"
+            "##*########*###*"
+            "######*##*#####*"
+            "##*#####*##*####"
+            "############*#*#"
+            "####*#####*##*##"
+            );
+    game.open(15, 2);
+    REQUIRE(no_guesses_and_won(16, 16, 55, game));
+}
+
+TEST_CASE("'No guesses' game 2", "[Validation]"){
+    algolab::Minegame game;
+    game.from_string(16, 16, 
+            "####*#*####*####"
+            "###**#########*#"
+            "*#*#####**######"
+            "##*######*######"
+            "########*##**###"
+            "######*#*##*##*#"
+            "*##*#####*######"
+            "#*###*#*##*#*###"
+            "###*#####**#*##*"
+            "###*#########*##"
+            "#*#*####*###*###"
+            "*#####**####*##*"
+            "#**##**###*#*###"
+            "###*##*########*"
+            "*##*#*****###*##"
+            "*####*###**##*##"
+            );
+    game.open(3, 5);
+    REQUIRE(no_guesses_and_won(16, 16, 65, game));
+}
+
+TEST_CASE("'No guesses' game 3", "[Validation]"){
+    algolab::Minegame game;
+    game.from_string(16, 16, 
+            "###*#**###*##*##"
+            "*######*##*##*##"
+            "*########*##**#*"
+            "####***####**###"
+            "########*#####*#"
+            "*#####**####*###"
+            "###*#*##########"
+            "#########***####"
+            "#*########**#***"
+            "#**##*##**####**"
+            "####*#######**##"
+            "**##########**##"
+            "##*#*##***######"
+            "########*##**##*"
+            "####**#*###*####"
+            "**#**##*######**"
+            );
+    game.open(6, 14);
+    REQUIRE(no_guesses_and_won(16, 16, 70, game));
+}
+
+TEST_CASE("'No guesses' game 4", "[Validation]"){
+    algolab::Minegame game;
+    game.from_string(16, 16, 
+            "*####**##*****#*"
+            "**#############*"
+            "*#*###*##*####**"
+            "#*#####*########"
+            "##*####**####*##"
+            "####*##*#######*"
+            "#*#*##*###**###*"
+            "*####***#####*#*"
+            "######*######*#*"
+            "*####*##*#*####*"
+            "###***#######***"
+            "###*##*#####*###"
+            "*####*###*#*##*#"
+            "**####*###*####*"
+            "#**#*##*##*###*#"
+            "#######***#####*"
+            );
+    game.open(8, 2);
+    REQUIRE(no_guesses_and_won(16, 16, 76, game));
+}
+
+TEST_CASE("'No guesses' game 5", "[Validation]"){
+    algolab::Minegame game;
+    game.from_string(10, 10, 
+            "#*#**#*#**"
+            "###*#*##*#"
+            "#####*#*#*"
+            "###*######"
+            "##*##*###*"
+            "######*#*#"
+            "**#######*"
+            "#*#*####**"
+            "*#####*##*"
+            "###****##*"
+            );
+    game.open(2, 0);
+    REQUIRE(no_guesses_and_won(10, 10, 34, game));
+}
+
+TEST_CASE("'No guesses' game 6", "[Validation]"){
+    algolab::Minegame game;
+    game.from_string(20, 30, 
+            "*####*#*##########*#*#########"
+            "#*################*######*####"
+            "#########*#######**######*####"
+            "#**##*##########****#**##*##*#"
+            "*###*#*######****######*###*##"
+            "######*#****####**#*####*#####"
+            "#*#########*##*####*#*######**"
+            "#########*###*####*###########"
+            "#######*#######*##*####*######"
+            "###*####*#**##*########*####**"
+            "##*####*#*##*#*##*############"
+            "####*#####*##*#####*#####**###"
+            "##*#*###***####*############**"
+            "#*#############*###**#*#*###*#"
+            "**######*##*##*###*####*#*####"
+            "################*#*###########"
+            "###*############*###*#####***#"
+            "**########*#####*###*#*###*###"
+            "#*######*###########**########"
+            "#*#***###****#########**#**##*"
+            );
+    game.open(19, 15);
+    REQUIRE(no_guesses_and_won(20, 30, 130, game));
+}
+
+TEST_CASE("No false moves are made in 100 games", "[Validation][!benchmark]"){
     int number_of_games = 100;
     BenchmarkQueue<bool> result_queue;
     std::vector<std::future<void>> futures;
@@ -85,10 +236,25 @@ TEST_CASE("No false moves are made in 100 games", "[Algorithm][!benchmark]"){
     for (int complete = 0; complete < number_of_games; complete++){
         bool result = result_queue.pop();
         REQUIRE(result);
-        std::cout << complete + 1 << " out of 100 games done" << std::endl;
+        std::cout << "\r" <<  complete + 1 << " out of 100 games done" << std::flush;
     }
+    std::cout << std::endl;
 
     for (auto& fut : futures){
         fut.get();
     }
+}
+
+TEST_CASE("Testing ai speed", "[!benchmark]"){
+    BENCHMARK("Easy game"){
+        return run_game(9,9,10);
+    };
+
+    BENCHMARK("Intermediate game"){
+        return run_game(16,16,40);
+    };
+
+    BENCHMARK("Expert game"){
+        return run_game(16,30,99);
+    };
 }

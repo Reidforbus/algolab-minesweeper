@@ -30,6 +30,8 @@ namespace algolab{
         bool check_board();
         bool in_bounds(int row, int col);
         void spread_open(int row, int col);
+        void fill_numbers();
+        void fill_board(std::vector<bool> mines);
 
         public:
 
@@ -40,6 +42,8 @@ namespace algolab{
         uint32_t get_seed();
 
         void new_game(int h, int w, int m, uint32_t new_seed, bool seeded);
+        void from_coords(int h, int w, std::vector<Coord> mines);
+        void from_string(int h, int w, std::string input);
         void open(int row, int col);
         void flag(int row, int col);
         bool execute_move(algolab::Move move);
