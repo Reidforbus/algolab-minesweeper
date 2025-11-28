@@ -2,6 +2,7 @@
 
 #include "utilities.hpp"
 #include <iostream>
+#include <cstdint>
 
 namespace algolab{
     class Minegame{
